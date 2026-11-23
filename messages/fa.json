@@ -1,0 +1,390 @@
+{
+  "common": {
+    "appName": "سامانه جامع علوم پایه",
+    "brandMark": "پ ن",
+    "company":"پروژه نگار ایرانیان",
+    "otherLanguage": "English",
+    "switchLanguage": "تغییر زبان",
+    "palette": "انتخاب پالت رنگ",
+    "palettes": {
+      "neutral": "زینک (خنثی)",
+      "slate": "اسلیت",
+      "blue": "آبی",
+      "indigo": "نیلی",
+      "violet": "بنفش",
+      "rose": "رز",
+      "amber": "کهربایی",
+      "emerald": "زمردی",
+      "teal": "سبزآبی",
+      "cyan": "فیروزه‌ای"
+    },
+    "toggleTheme": "تغییر تم",
+    "openMenu": "باز کردن منو",
+    "collapseSidebar": "جمع کردن منوی کناری",
+    "expandSidebar": "باز کردن منوی کناری",
+    "menuTitle": "منوی اصلی",
+    "menuDescription": "پیمایش بین بخش‌های سامانه",
+    "skipToContent": "پرش به محتوای اصلی",
+    "logout": "خروج",
+    "home": "خانه",
+    "breadcrumb": "مسیر صفحه",
+    "sampleNotice": "داده‌های این صفحه نمونه است و بعد از اتصال به API جایگزین می‌شود.",
+    "cancel": "انصراف",
+    "save": "ذخیره",
+    "create": "ایجاد",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "retry": "تلاش دوباره",
+    "actions": "عملیات",
+    "previous": "قبلی",
+    "next": "بعدی",
+    "operationFailed": "عملیات ناموفق بود. دوباره تلاش کنید."
+  },
+  "nav": {
+    "label": "پیمایش اصلی",
+    "sections": {
+      "main": "اصلی",
+      "management": "مدیریت"
+    },
+    "items": {
+      "dashboard": "داشبورد",
+      "users": "کاربران",
+      "sessions": "نشست‌ها",
+      "auditLogs": "گزارش ممیزی"
+    },
+    "placeholder": "این صفحه در مراحل بعد ساخته می‌شود.",
+    "retry": "تلاش مجدد"
+  },
+  "user": {
+    "menu": "منوی کاربر",
+    "initials": "مد",
+    "demoName": "مدیر سامانه",
+    "demoRole": "دسترسی کامل"
+  },
+  "footer": {
+    "rights": "© {year} {name}. تمامی حقوق مادی و معنوی این محصول نزد <company>{companyName}</company> محفوظ است."
+  },
+  "auth": {
+    "title": "خوش آمدید",
+    "subtitle": "برای ادامه وارد حساب کاربری خود شوید",
+    "tabs": {
+      "mobile": "ورود با شماره همراه",
+      "password": "ورود با نام کاربری و رمز"
+    },
+    "mobile": "شماره همراه",
+    "mobilePlaceholder": "09123456789",
+    "sendCode": "ارسال کد تأیید",
+    "sendingCode": "در حال ارسال...",
+    "username": "نام کاربری",
+    "usernamePlaceholder": "نام کاربری خود را وارد کنید",
+    "password": "رمز عبور",
+    "passwordPlaceholder": "رمز عبور خود را وارد کنید",
+    "showPassword": "نمایش رمز عبور",
+    "hidePassword": "پنهان کردن رمز عبور",
+    "signIn": "ورود",
+    "signingIn": "در حال ورود...",
+    "loadFailed": "بارگذاری تنظیمات ورود ناموفق بود.",
+    "noMethods": "هیچ روش ورودی فعال نیست؛ با مدیر سیستم تماس بگیرید.",
+    "demoHint": "نسخه نمایشی (داده ساختگی): کد تأیید ۱۲۳۴۵۶ است و رمز wrong خطا می‌دهد.",
+    "validation": {
+      "mobileRequired": "شماره همراه را وارد کنید",
+      "mobileInvalid": "شماره همراه معتبر نیست (مثال: 09123456789)",
+      "usernameRequired": "نام کاربری را وارد کنید",
+      "passwordRequired": "رمز عبور را وارد کنید",
+      "otpInvalid": "کد تأیید باید {length} رقم باشد"
+    },
+    "otp": {
+      "title": "تأیید هویت",
+      "sentTo": "کد تأیید به شماره {phone} ارسال شد",
+      "code": "کد تأیید",
+      "verify": "تأیید و ورود",
+      "verifying": "در حال بررسی...",
+      "resendIn": "ارسال دوباره تا {seconds} ثانیه دیگر",
+      "resend": "ارسال دوباره کد",
+      "back": "بازگشت"
+    },
+    "errors": {
+      "captchaRequired": "لطفاً تأیید امنیتی (کپچا) را انجام دهید.",
+      "captchaInvalid": "تأیید امنیتی نامعتبر یا منقضی است؛ دوباره انجام دهید.",
+      "invalidCredentials": "نام کاربری یا رمز عبور نادرست است.",
+      "invalidOtp": "کد وارد شده نادرست یا منقضی است.",
+      "tooManyRequests": "تعداد تلاش‌ها زیاد است؛ کمی بعد دوباره امتحان کنید.",
+      "forbidden": "این روش ورود غیرفعال است.",
+      "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید."
+    },
+    "captcha": {
+      "label": "تأیید امنیتی",
+      "loadFailed": "بارگذاری کپچا ناموفق بود؛ اتصال اینترنت یا فیلترشکن را بررسی کنید.",
+      "notConfigured": "کلید کپچا روی سرور تنظیم نشده است."
+    }
+  },
+  "dashboard": {
+    "title": "نمای کلی",
+    "description": "خلاصه‌ای از وضعیت سامانه",
+    "sampleNotice": "داده‌های این صفحه نمونه است و بعد از اتصال به API جایگزین می‌شود.",
+    "stats": {
+      "totalUsers": "کل کاربران",
+      "activeSessions": "نشست‌های فعال",
+      "roles": "نقش‌ها",
+      "failedLogins": "ورودهای ناموفق"
+    },
+    "vsLastWeek": "نسبت به هفته قبل",
+    "recent": {
+      "title": "آخرین ورودها",
+      "description": "تازه‌ترین تلاش‌ها برای ورود به سامانه",
+      "success": "موفق",
+      "failed": "ناموفق"
+    }
+  },
+  "roles": {
+    "admin": "مدیر سامانه",
+    "supervisor": "ناظر",
+    "operator": "اپراتور"
+  },
+  "users": {
+    "title": "کاربران",
+    "description": "مدیریت کاربران و حساب‌های سامانه",
+    "add": "افزودن کاربر",
+    "searchPlaceholder": "جستجو بر اساس نام، نام کاربری، موبایل یا ایمیل",
+    "never": "هنوز وارد نشده",
+    "filters": {
+      "status": "وضعیت",
+      "all": "همه",
+      "active": "فعال",
+      "inactive": "غیرفعال",
+      "role": "نقش",
+      "allRoles": "همه‌ی نقش‌ها"
+    },
+    "columns": {
+      "user": "کاربر",
+      "phone": "موبایل",
+      "roles": "نقش‌ها",
+      "universities": "دانشگاه‌ها",
+      "status": "وضعیت",
+      "lastLogin": "آخرین ورود",
+      "createdAt": "تاریخ ایجاد",
+      "actions": "عملیات",
+      "email": "ایمیل"
+    },
+    "status": {
+      "active": "فعال",
+      "inactive": "غیرفعال"
+    },
+    "pagination": {
+      "summary": "نمایش {from} تا {to} از {total} کاربر",
+      "page": "صفحه {page} از {pages}"
+    },
+    "empty": {
+      "title": "کاربری پیدا نشد",
+      "description": "فیلترها را تغییر دهید یا کاربر جدیدی اضافه کنید.",
+      "clear": "پاک کردن فیلترها"
+    },
+    "error": {
+      "title": "بارگذاری کاربران ناموفق بود",
+      "description": "ارتباط با سرور برقرار نشد. دوباره تلاش کنید."
+    },
+    "forbidden": {
+      "title": "دسترسی ندارید",
+      "description": "شما به مدیریت کاربران دسترسی ندارید. برای دریافت دسترسی با مدیر سیستم تماس بگیرید."
+    },
+    "form": {
+      "createTitle": "افزودن کاربر",
+      "createDescription": "اطلاعات کاربر جدید را وارد کنید.",
+      "editTitle": "ویرایش کاربر",
+      "editDescription": "نام کاربری و کد ملی بعد از ایجاد قابل تغییر نیستند.",
+      "username": "نام کاربری",
+      "firstName": "نام",
+      "lastName": "نام خانوادگی",
+      "phone": "شماره موبایل",
+      "email": "ایمیل (اختیاری)",
+      "nationalCode": "کد ملی",
+      "password": "رمز عبور (اختیاری)",
+      "passwordNew": "رمز عبور جدید (اختیاری)",
+      "passwordHintCreate": "ورود اصلی با کد پیامکی است؛ رمز فقط برای ورود با نام کاربری لازم است.",
+      "passwordHintEdit": "با تغییر رمز، همه‌ی نشست‌های این کاربر پایان می‌یابد.",
+      "roles": "نقش‌ها",
+      "rolesFailed": "بارگذاری نقش‌ها ناموفق بود.",
+      "isActive": "حساب کاربری فعال باشد",
+      "conflict": "نام کاربری، شماره موبایل یا کد ملی قبلاً ثبت شده است.",
+      "fatherName": "نام پدر",
+      "gender": "جنسیت",
+      "male": "مرد",
+      "female": "زن",
+      "maritalStatus": "وضعیت تأهل",
+      "single": "مجرد",
+      "married": "متأهل",
+      "religion": "شناسه دین",
+      "leftHanded": "وضعیت دست‌برتری",
+      "rightHanded": "راست‌دست",
+      "leftHandedOption": "چپ‌دست",
+      "nationality": "شناسه ملیت",
+      "expireDate": "تاریخ انقضای حساب",
+      "validation": {
+        "usernameFormat": "نام کاربری باید ۳ تا ۵۰ کاراکتر باشد، با حرف انگلیسی شروع شود و فقط حروف، عدد، نقطه و زیرخط داشته باشد",
+        "firstNameRequired": "نام را وارد کنید",
+        "lastNameRequired": "نام خانوادگی را وارد کنید",
+        "phoneInvalid": "شماره موبایل معتبر نیست (مثال: 09123456789)",
+        "emailInvalid": "ایمیل معتبر نیست",
+        "nationalCodeInvalid": "کد ملی باید ۱۰ رقم باشد",
+        "passwordMin": "رمز عبور حداقل ۸ کاراکتر باشد",
+        "rolesRequired": "حداقل یک نقش انتخاب کنید",
+        "fatherNameRequired": "نام پدر را وارد کنید",
+        "genderRequired": "جنسیت را انتخاب کنید",
+        "maritalStatusRequired": "وضعیت تأهل را انتخاب کنید",
+        "religionRequired": "شناسه دین را وارد کنید",
+        "leftHandedRequired": "وضعیت دست‌برتری را انتخاب کنید",
+        "nationalityRequired": "شناسه ملیت را وارد کنید",
+        "expireDateRequired": "تاریخ انقضای حساب را وارد کنید"
+      }
+    },
+    "delete": {
+      "title": "حذف کاربر",
+      "description": "آیا از حذف «{name}» مطمئن هستید؟ نشست‌های او نیز پایان می‌یابد.",
+      "confirm": "بله، حذف شود"
+    },
+    "toast": {
+      "created": "کاربر ایجاد شد",
+      "updated": "کاربر ویرایش شد",
+      "deleted": "کاربر حذف شد"
+    },
+    "management": {
+      "access": {
+        "button": "دسترسی اختصاصی",
+        "title": "مدیریت دسترسی اختصاصی",
+        "description": "دسترسی‌های مستقیم منو برای کاربر {name}",
+        "hint": "این تنظیم فقط دسترسی مستقیم کاربر را تغییر می‌دهد و دسترسی‌هایی که از گروه‌ها دریافت کرده است حفظ می‌شوند.",
+        "loadFailed": "دریافت اطلاعات دسترسی کاربر ناموفق بود.",
+        "saved": "دسترسی اختصاصی کاربر ذخیره شد.",
+        "saveFailed": "ذخیره دسترسی اختصاصی ناموفق بود.",
+        "noMenus": "منویی برای انتخاب وجود ندارد.",
+        "selected": "{count} منو انتخاب شده است"
+      },
+      "bulk": {
+        "selectUsers": "انتخاب کاربران",
+        "title": "انتخاب چند کاربر",
+        "description": "کاربرانی را که می‌خواهید عملیات روی آن‌ها انجام شود انتخاب کنید.",
+        "currentUser": "حساب شما",
+        "selected": "{count} کاربر انتخاب شده است",
+        "close": "بستن",
+        "deactivate": "غیرفعال‌سازی",
+        "delete": "حذف کاربران",
+        "deleteTitle": "حذف گروهی کاربران",
+        "deactivateTitle": "غیرفعال‌سازی گروهی کاربران",
+        "deleteDescription": "آیا از حذف {count} کاربر انتخاب‌شده مطمئن هستید؟ نشست‌های فعال آن‌ها نیز باطل می‌شود.",
+        "deactivateDescription": "آیا از غیرفعال‌سازی {count} کاربر انتخاب‌شده مطمئن هستید؟ نشست‌های فعال آن‌ها نیز باطل می‌شود.",
+        "deleted": "{count} کاربر با موفقیت حذف شدند.",
+        "deactivated": "{count} کاربر با موفقیت غیرفعال شدند."
+      }
+    }
+  },
+  "groups": {
+    "title": "گروه‌های کاربری",
+    "description": "مدیریت گروه‌ها و اعضای آن‌ها در سامانه"
+  },
+  "sessions": {
+    "title": "نشست‌ها",
+    "description": "دستگاه‌هایی که با حساب شما وارد شده‌اند",
+    "current": "این دستگاه",
+    "lastActive": "آخرین فعالیت: {time}",
+    "signedInAt": "زمان ورود: {date}",
+    "ip": "آی‌پی",
+    "revoke": "پایان نشست",
+    "revokeOthers": "خروج از سایر دستگاه‌ها",
+    "revokeDialog": {
+      "title": "پایان نشست",
+      "description": "دستگاه «{device}» از حساب شما خارج می‌شود.",
+      "confirm": "پایان نشست"
+    },
+    "revokeOthersDialog": {
+      "title": "خروج از سایر دستگاه‌ها",
+      "description": "همه نشست‌های دیگر پایان می‌یابد و فقط همین دستگاه وارد می‌ماند.",
+      "confirm": "بله، خارج شوند"
+    },
+    "empty": {
+      "title": "نشستی پیدا نشد",
+      "description": "هیچ نشست فعالی برای حساب شما ثبت نشده است."
+    },
+    "error": {
+      "title": "بارگذاری نشست‌ها ناموفق بود",
+      "description": "ارتباط با سرور برقرار نشد. دوباره تلاش کنید."
+    },
+    "toast": {
+      "revoked": "نشست پایان یافت",
+      "revokedOthers": "از سایر دستگاه‌ها خارج شدید"
+    },
+    "expiresAt": "انقضای نشست: {date}"
+  },
+  "auditLogs": {
+    "title": "گزارش سوابق ممیزی",
+    "description": "جستجو و بررسی رویدادهای ثبت‌شده در سامانه",
+    "searchPlaceholder": "جستجو بر اساس کاربر، عملیات یا مسیر",
+    "export": "خروجی CSV",
+    "exportSuccess": "فایل گزارش ممیزی با موفقیت دریافت شد.",
+    "copy": "کپی",
+    "copySuccess": "اطلاعات با موفقیت کپی شد.",
+    "copyFailed": "کپی اطلاعات ناموفق بود.",
+    "detailsButton": "مشاهده جزئیات",
+    "retry": "تلاش دوباره",
+    "total": "تعداد کل رویدادها: {count}",
+    "previous": "قبلی",
+    "next": "بعدی",
+    "noRecords": "هیچ رویدادی برای نمایش وجود ندارد.",
+    "loadFailed": "بارگذاری گزارش‌های ممیزی ناموفق بود.",
+    "eventTypes": {
+      "activity": "فعالیت",
+      "security": "امنیتی",
+      "request": "درخواست"
+    },
+    "filters": {
+      "allEvents": "همه رویدادها",
+      "username": "نام کاربر",
+      "userId": "شناسه کاربر",
+      "ipAddress": "آدرس IP",
+      "action": "عملیات",
+      "entityName": "نام موجودیت",
+      "entityId": "شناسه موجودیت",
+      "statusCode": "کد وضعیت HTTP",
+      "fromUtc": "از تاریخ",
+      "toUtc": "تا تاریخ"
+    },
+    "columns": {
+      "time": "زمان",
+      "type": "نوع رویداد",
+      "action": "عملیات",
+      "user": "کاربر",
+      "ip": "آدرس IP",
+      "status": "وضعیت HTTP",
+      "path": "مسیر",
+      "details": "جزئیات"
+    },
+    "details": {
+      "title": "جزئیات رویداد ممیزی",
+      "generalInfo": "اطلاعات عمومی",
+      "eventType": "نوع رویداد",
+      "action": "عملیات",
+      "user": "کاربر",
+      "userId": "شناسه کاربر",
+      "time": "زمان وقوع",
+      "ipAddress": "آدرس IP",
+      "entity": "نام موجودیت",
+      "entityId": "شناسه موجودیت",
+      "description": "توضیحات",
+      "httpInfo": "اطلاعات درخواست",
+      "httpMethod": "متد HTTP",
+      "path": "مسیر درخواست",
+      "statusCode": "کد وضعیت",
+      "duration": "مدت زمان (میلی‌ثانیه)",
+      "correlationId": "شناسه پیگیری",
+      "userAgent": "مرورگر و دستگاه",
+      "changes": "تغییرات اطلاعات",
+      "oldValues": "مقادیر قبلی",
+      "newValues": "مقادیر جدید",
+      "noData": "اطلاعاتی ثبت نشده است",
+      "logId": "شناسه گزارش",
+      "close": "بستن"
+    },
+    "pagination": {
+      "page": "صفحه {page} از {pages}"
+    }
+  }
+}

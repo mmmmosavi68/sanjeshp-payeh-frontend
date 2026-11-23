@@ -1,0 +1,153 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../styles/palettes.css";
+@import "sonner/dist/styles.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-selected: var(--selected);
+  --color-selected-foreground: var(--selected-foreground);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Semantic status colors (AA on background in light and dark) */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  /* Typography scale: compact and coherent (body 14px / secondary 13px) */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.375rem;
+  --text-lg: 1rem;
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.125rem;
+  --text-xl--line-height: 1.625rem;
+  --text-2xl: 1.25rem;
+  --text-2xl--line-height: 1.75rem;
+  --text-3xl: 1.5rem;
+  --text-3xl--line-height: 2rem;
+
+  /* Low, subtle elevation */
+  --shadow-xs: 0 1px 1px 0 rgb(0 0 0 / 0.03);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 2px 6px -1px rgb(0 0 0 / 0.07);
+  --shadow-lg: 0 6px 16px -4px rgb(0 0 0 / 0.1);
+}
+
+/*
+ * Density: the single place that controls how compact the UI is.
+ * Components consume these via arbitrary-value utilities, e.g. h-(--density-control).
+ */
+:root {
+  --radius: 0.375rem;
+
+  --density-control-xs: 1.5rem;
+  --density-control-sm: 1.75rem;
+  --density-control: 2rem;
+  --density-control-lg: 2.25rem;
+  --density-row: 2.25rem;
+  --density-cell-x: 0.75rem;
+  --density-card: 0.875rem;
+  --density-card-sm: 0.625rem;
+  --density-gap: 0.75rem;
+  --density-dialog: 1rem;
+  --density-page-x: 1rem;
+  --density-page-y: 1rem;
+
+  --header-h: 3rem;
+  --sidebar-w: 13.5rem;
+  --sidebar-w-collapsed: 3.25rem;
+}
+
+/* Touch targets must stay >= 32px on touch devices (WCAG 2.5.8 / project rule) */
+@media (pointer: coarse) {
+  :root {
+    --density-control-xs: 2rem;
+    --density-control-sm: 2rem;
+    --density-control: 2.25rem;
+    --density-control-lg: 2.5rem;
+    --density-row: 2.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --density-page-x: 1.5rem;
+    --density-page-y: 1.25rem;
+  }
+}
+
+:root {
+  --success: var(--color-emerald-700);
+  --warning: var(--color-amber-700);
+  --info: var(--color-blue-700);
+}
+
+.dark {
+  --success: var(--color-emerald-400);
+  --warning: var(--color-amber-400);
+  --info: var(--color-blue-400);
+}
+
+/* Palette tokens (light + dark, per palette) live in src/styles/palettes.css */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-base text-foreground;
+  }
+
+  /* iOS Safari zooms into inputs smaller than 16px */
+  @supports (-webkit-touch-callout: none) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+}
+
+/* Radix Select injects this as an inline <style>; shipped statically so strict CSP (no unsafe-inline) keeps working */
+[data-radix-select-viewport] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+[data-radix-select-viewport]::-webkit-scrollbar {
+  display: none;
+}

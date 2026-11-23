@@ -1,0 +1,12 @@
+[
+  { "id": "neutral", "accent": "zinc", "gray": "zinc", "lightStep": 900, "darkStep": 200 },
+  { "id": "slate", "accent": "slate", "gray": "slate", "lightStep": 800, "darkStep": 300 },
+  { "id": "blue", "accent": "blue", "gray": "slate" },
+  { "id": "indigo", "accent": "indigo", "gray": "slate" },
+  { "id": "violet", "accent": "violet", "gray": "zinc" },
+  { "id": "rose", "accent": "rose", "gray": "stone" },
+  { "id": "amber", "accent": "amber", "gray": "stone" },
+  { "id": "emerald", "accent": "emerald", "gray": "zinc" },
+  { "id": "teal", "accent": "teal", "gray": "slate" },
+  { "id": "cyan", "accent": "cyan", "gray": "slate" }
+]
