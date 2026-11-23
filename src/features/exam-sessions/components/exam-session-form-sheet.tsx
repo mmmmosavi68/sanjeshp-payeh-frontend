@@ -23,20 +23,21 @@ import {
 } from "../api";
 
 import type { ExamSessionDto } from "../types";
+import { useTranslations } from "next-intl";
 
 const examSessionFormSchema = z
   .object({
     title: z
       .string()
       .trim()
-      .min(1, "عنوان نوبت الزامی است.")
-      .max(100, "عنوان نوبت نباید بیشتر از ۱۰۰ کاراکتر باشد."),
+      .min(1, "titleRequired")
+      .max(100, "titleTooLong"),
 
-    examDate: z.string().min(1, "تاریخ برگزاری الزامی است."),
+    examDate: z.string().min(1, "dateRequired"),
 
-    startTime: z.string().min(1, "ساعت شروع الزامی است."),
+    startTime: z.string().min(1, "startRequired"),
 
-    endTime: z.string().min(1, "ساعت پایان الزامی است."),
+    endTime: z.string().min(1, "endRequired"),
 
     isActive: z.boolean(),
   })
@@ -49,7 +50,7 @@ const examSessionFormSchema = z
       ctx.addIssue({
         code: "custom",
         path: ["endTime"],
-        message: "ساعت پایان باید بعد از ساعت شروع باشد.",
+        message: "endAfterStart",
       });
     }
   });
@@ -89,6 +90,7 @@ export function ExamSessionFormSheet({
   examSession,
   onSaved,
 }: ExamSessionFormSheetProps) {
+  const tl = useTranslations("screens.examSessions.examSessionFormSheet");
   const isEdit = examSession !== null;
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -137,11 +139,11 @@ export function ExamSessionFormSheet({
           isActive: values.isActive,
         });
 
-        toast.success("نوبت آزمون با موفقیت ویرایش شد.");
+        toast.success(tl("examSessionUpdatedSuccessfully"));
       } else {
         await createExamSession(payload);
 
-        toast.success("نوبت آزمون با موفقیت ثبت شد.");
+        toast.success(tl("examSessionCreatedSuccessfully"));
       }
 
       onOpenChange(false);
@@ -150,7 +152,7 @@ export function ExamSessionFormSheet({
       setFormError(
         error instanceof Error
           ? error.message
-          : "ذخیره اطلاعات نوبت آزمون ناموفق بود.",
+          : tl("couldnTSaveTheExam"),
       );
     }
   }
@@ -163,11 +165,11 @@ export function ExamSessionFormSheet({
       >
         <SheetHeader className="border-b px-4 py-3 pe-14">
           <SheetTitle>
-            {isEdit ? "ویرایش نوبت آزمون" : "ثبت نوبت آزمون جدید"}
+            {isEdit ? tl("editExamSession") : tl("createNewExamSession")}
           </SheetTitle>
 
           <SheetDescription>
-            عنوان، تاریخ و بازه زمانی برگزاری نوبت آزمون را مشخص کنید.
+            {tl("specifyTheTitleDateAnd")}
           </SheetDescription>
         </SheetHeader>
 
@@ -188,33 +190,33 @@ export function ExamSessionFormSheet({
 
             <section className="space-y-4">
               <h3 className="text-sm font-semibold">
-                اطلاعات نوبت
+                {tl("sessionDetails")}
               </h3>
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="exam-session-title" className="text-sm font-medium">
-                  عنوان نوبت
+                  {tl("sessionTitle")}
                 </label>
 
                 <input
                   id="exam-session-title"
                   type="text"
                   maxLength={100}
-                  placeholder="مثلاً نوبت صبح آزمون دستیاری"
+                  placeholder={tl("eGMorningSessionOf")}
                   className={inputClassName}
                   {...register("title")}
                 />
 
                 {errors.title?.message && (
                   <p className="text-xs text-destructive">
-                    {errors.title.message}
+                    {tl(`validation.${errors.title.message}`)}
                   </p>
                 )}
               </div>
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="exam-session-date" className="text-sm font-medium">
-                  تاریخ برگزاری
+                  {tl("examDate")}
                 </label>
 
                 <input
@@ -226,7 +228,7 @@ export function ExamSessionFormSheet({
 
                 {errors.examDate?.message && (
                   <p className="text-xs text-destructive">
-                    {errors.examDate.message}
+                    {tl(`validation.${errors.examDate.message}`)}
                   </p>
                 )}
               </div>
@@ -234,7 +236,7 @@ export function ExamSessionFormSheet({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2">
                   <label htmlFor="exam-session-start" className="text-sm font-medium">
-                    ساعت شروع
+                    {tl("startTime")}
                   </label>
 
                   <input
@@ -246,14 +248,14 @@ export function ExamSessionFormSheet({
 
                   {errors.startTime?.message && (
                     <p className="text-xs text-destructive">
-                      {errors.startTime.message}
+                      {tl(`validation.${errors.startTime.message}`)}
                     </p>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <label htmlFor="exam-session-end" className="text-sm font-medium">
-                    ساعت پایان
+                    {tl("endTime")}
                   </label>
 
                   <input
@@ -265,7 +267,7 @@ export function ExamSessionFormSheet({
 
                   {errors.endTime?.message && (
                     <p className="text-xs text-destructive">
-                      {errors.endTime.message}
+                      {tl(`validation.${errors.endTime.message}`)}
                     </p>
                   )}
                 </div>
@@ -280,7 +282,7 @@ export function ExamSessionFormSheet({
                   />
 
                   <span className="text-sm">
-                    نوبت آزمون فعال باشد
+                    {tl("thisExamSessionIsActive")}
                   </span>
                 </label>
               )}
@@ -295,7 +297,7 @@ export function ExamSessionFormSheet({
                 disabled={isSubmitting}
                 onClick={() => onOpenChange(false)}
               >
-                انصراف
+                {tl("cancel")}
               </Button>
 
               <Button
@@ -306,7 +308,7 @@ export function ExamSessionFormSheet({
                   <Loader2 className="size-4 animate-spin" />
                 )}
 
-                {isEdit ? "ذخیره تغییرات" : "ثبت نوبت"}
+                {isEdit ? tl("saveChanges") : tl("createSession")}
               </Button>
             </div>
           </SheetFooter>

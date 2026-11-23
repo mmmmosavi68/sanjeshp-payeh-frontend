@@ -49,8 +49,10 @@ import type {
   UniversityExamCapacityExamDto,
   UniversityExamGuestCapacityDto,
 } from "../types";
+import { useTranslations } from "next-intl";
+import { useFormatters } from "@/lib/format";
 
-const fa = (n: number) => n.toLocaleString("fa-IR");
+
 
 const isElectronic = (exam?: UniversityExamCapacityExamDto) =>
   !!exam?.examModeTitle?.includes("الکترونیک");
@@ -64,6 +66,8 @@ const selectContentProps = {
 };
 
 export function ExamCapacityManager() {
+  const { num, date } = useFormatters();
+  const tl = useTranslations("screens.examCapacities.examCapacityManager");
   const {
     data: universities,
     loading: universitiesLoading,
@@ -193,17 +197,17 @@ export function ExamCapacityManager() {
     const own = Number(ownCapacity);
 
     if (!Number.isInteger(allocated) || allocated <= 0) {
-      toast.error("ظرفیت کل باید عدد صحیح و بیشتر از صفر باشد.");
+      toast.error(tl("totalCapacityMustBeA"));
       return;
     }
 
     if (!Number.isInteger(own) || own < 0) {
-      toast.error("ظرفیت اختصاصی باید عدد صحیح و صفر یا بیشتر باشد.");
+      toast.error(tl("dedicatedCapacityMustBeA"));
       return;
     }
 
     if (own > allocated) {
-      toast.error("ظرفیت اختصاصی نمی‌تواند بیشتر از ظرفیت کل باشد.");
+      toast.error(tl("dedicatedCapacityCanTExceed"));
       return;
     }
 
@@ -219,7 +223,7 @@ export function ExamCapacityManager() {
         },
       );
 
-      toast.success("ظرفیت آزمون با موفقیت ذخیره شد.");
+      toast.success(tl("examCapacitySavedSuccessfully"));
 
       setEditingExamId(null);
       setExamId("");
@@ -229,7 +233,7 @@ export function ExamCapacityManager() {
       toast.error(
         error instanceof Error && error.message
           ? error.message
-          : "ذخیره ظرفیت آزمون ناموفق بود.",
+          : tl("couldnTSaveTheExam"),
       );
     } finally {
       setSaving(false);
@@ -303,7 +307,7 @@ export function ExamCapacityManager() {
       setGuestLoadError(
         error instanceof Error && error.message
           ? error.message
-          : "دریافت اطلاعات دانشگاه‌های مهمان ناموفق بود.",
+          : tl("couldnTLoadTheGuest"),
       );
     } finally {
       setGuestLoading(false);
@@ -326,14 +330,14 @@ export function ExamCapacityManager() {
 
   async function handleSaveGuestCapacity() {
     if (!universityId || !guestExam || !guestUniversityId) {
-      toast.error("دانشگاه مهمان را انتخاب کنید.");
+      toast.error(tl("selectAGuestUniversity"));
       return;
     }
 
     const capacity = Number(guestCapacity);
 
     if (!Number.isInteger(capacity) || capacity <= 0) {
-      toast.error("ظرفیت باید عدد صحیح و بیشتر از صفر باشد.");
+      toast.error(tl("capacityMustBeAWhole"));
       return;
     }
 
@@ -347,7 +351,7 @@ export function ExamCapacityManager() {
         { capacity },
       );
 
-      toast.success("ظرفیت دانشگاه مهمان با موفقیت ذخیره شد.");
+      toast.success(tl("guestUniversityCapacitySavedSuccessfully"));
 
       setGuestUniversityId("");
       setGuestCapacity("");
@@ -358,7 +362,7 @@ export function ExamCapacityManager() {
       toast.error(
         error instanceof Error && error.message
           ? error.message
-          : "ذخیره ظرفیت دانشگاه مهمان ناموفق بود.",
+          : tl("couldnTSaveTheGuest"),
       );
     } finally {
       setGuestSaving(false);
@@ -381,8 +385,8 @@ export function ExamCapacityManager() {
   if (universitiesFailed) {
     return (
       <ErrorState
-        title="خطا در دریافت دانشگاه‌ها"
-        description="دریافت فهرست دانشگاه‌های مجاز شما از سرور ناموفق بود."
+        title={tl("couldnTLoadUniversities")}
+        description={tl("couldnTLoadTheList")}
         onRetry={reloadUniversities}
       />
     );
@@ -392,8 +396,8 @@ export function ExamCapacityManager() {
     return (
       <EmptyState
         icon={<Building2 className="size-5" />}
-        title="دانشگاهی برای شما تعریف نشده است"
-        description="برای تعیین ظرفیت آزمون، ابتدا باید دسترسی دانشگاه برای حساب کاربری شما ثبت شود."
+        title={tl("noUniversitiesAssignedToYou")}
+        description={tl("toSetExamCapacityUniversity")}
       />
     );
   }
@@ -410,7 +414,7 @@ export function ExamCapacityManager() {
       <div className="flex flex-col gap-2 rounded-lg border bg-card px-3 py-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
         <div className="flex shrink-0 items-center gap-2 text-sm font-medium">
           <Building2 className="size-4 text-primary" />
-          دانشگاه
+          {tl("university")}
         </div>
 
         <div className="min-w-0 sm:w-72">
@@ -428,7 +432,7 @@ export function ExamCapacityManager() {
               }}
             >
               <SelectTrigger className="h-9 w-full text-sm">
-                <SelectValue placeholder="دانشگاه را انتخاب کنید" />
+                <SelectValue placeholder={tl("selectAUniversity")} />
               </SelectTrigger>
 
               <SelectContent {...selectContentProps}>
@@ -448,16 +452,16 @@ export function ExamCapacityManager() {
         {selectedUniversity && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             <span>
-              نوع:{" "}
+              {tl("type")}{" "}
               <b className="font-medium text-foreground">
                 {selectedUniversity.universityTypeTitle || "—"}
               </b>
             </span>
 
             <span>
-              ظرفیت مصوب:{" "}
+              {tl("approvedCapacity")}{" "}
               <b className="font-semibold tabular-nums text-foreground">
-                {fa(selectedUniversity.capacityApproved)}
+                {num(selectedUniversity.capacityApproved)}
               </b>
             </span>
           </div>
@@ -474,13 +478,13 @@ export function ExamCapacityManager() {
       {!universityId ? (
         <EmptyState
           icon={<Building2 className="size-5" />}
-          title="دانشگاه را انتخاب کنید"
-          description="پس از انتخاب دانشگاه، آزمون‌ها و ظرفیت‌های آن نمایش داده می‌شود."
+          title={tl("selectAUniversity")}
+          description={tl("selectAUniversityToSee")}
         />
       ) : examsFailed ? (
         <ErrorState
-          title="خطا در دریافت آزمون‌ها"
-          description="فهرست آزمون‌های دانشگاه دریافت نشد."
+          title={tl("couldnTLoadExams")}
+          description={tl("theUniversitySExamList")}
           onRetry={reloadExams}
         />
       ) : (
@@ -513,7 +517,7 @@ export function ExamCapacityManager() {
                   />
                 )}
 
-                {isEditing ? "ویرایش ظرفیت" : "ثبت ظرفیت جدید"}
+                {isEditing ? tl("editCapacity") : tl("addNewCapacity")}
               </h2>
 
               {isEditing && (
@@ -525,7 +529,7 @@ export function ExamCapacityManager() {
                   onClick={handleCancelEdit}
                 >
                   <X className="size-3.5" />
-                  انصراف
+                  {tl("cancel")}
                 </Button>
               )}
             </header>
@@ -540,7 +544,7 @@ export function ExamCapacityManager() {
               ) : availableExams.length ? (
                 <Select value={examId} onValueChange={setExamId}>
                   <SelectTrigger className="h-9 w-full text-sm">
-                    <SelectValue placeholder="آزمون را انتخاب کنید" />
+                    <SelectValue placeholder={tl("selectAnExam")} />
                   </SelectTrigger>
 
                   <SelectContent {...selectContentProps}>
@@ -557,8 +561,8 @@ export function ExamCapacityManager() {
               ) : (
                 <p className="rounded-md bg-muted/40 px-3 py-4 text-center text-sm text-muted-foreground">
                   {definedExams.length
-                    ? "ظرفیت همه آزمون‌های فعال ثبت شده است."
-                    : "آزمون فعالی برای این دانشگاه وجود ندارد."}
+                    ? tl("capacityHasBeenSetFor")
+                    : tl("thereAreNoActiveExams")}
                 </p>
               )}
 
@@ -580,16 +584,16 @@ export function ExamCapacityManager() {
           <section className="min-w-0 overflow-hidden rounded-lg border bg-card">
             <header className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
               <h2 className="text-sm font-semibold">
-                ظرفیت‌های ثبت‌شده
+                {tl("recordedCapacities")}
               </h2>
 
               {!examsLoading && (
                 <div className="flex items-center gap-1.5 text-xs">
                   <span className="flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-success">
                     <CheckCircle2 className="size-3.5" />
-                    ثبت‌شده
+                    {tl("recorded")}
                     <b className="tabular-nums">
-                      {fa(definedExams.length)}
+                      {num(definedExams.length)}
                     </b>
                   </span>
 
@@ -602,9 +606,9 @@ export function ExamCapacityManager() {
                     )}
                   >
                     <Clock className="size-3.5" />
-                    بدون ظرفیت
+                    {tl("noCapacity")}
                     <b className="tabular-nums">
-                      {fa(availableExams.length)}
+                      {num(availableExams.length)}
                     </b>
                   </span>
                 </div>
@@ -619,7 +623,7 @@ export function ExamCapacityManager() {
               </div>
             ) : definedExams.length === 0 ? (
               <p className="px-3 py-8 text-center text-sm text-muted-foreground">
-                هنوز ظرفیتی برای این دانشگاه ثبت نشده است.
+                {tl("noCapacityHasBeenRecorded")}
               </p>
             ) : (
               <div className="overflow-x-auto">
@@ -627,23 +631,23 @@ export function ExamCapacityManager() {
                   <thead>
                     <tr className="border-b bg-muted/30 text-xs text-muted-foreground">
                       <th className="px-3 py-2 text-start font-medium">
-                        آزمون
+                        {tl("exam")}
                       </th>
 
                       <th className="px-3 py-2 text-center font-medium">
-                        کل
+                        {tl("total")}
                       </th>
 
                       <th className="px-3 py-2 text-center font-medium">
-                        اختصاصی
+                        {tl("dedicated")}
                       </th>
 
                       <th className="hidden px-3 py-2 text-center font-medium sm:table-cell">
-                        مهمان
+                        {tl("guest")}
                       </th>
 
                       <th className="px-2 py-2 text-center font-medium">
-                        عملیات
+                        {tl("actions")}
                       </th>
                     </tr>
                   </thead>
@@ -680,18 +684,18 @@ export function ExamCapacityManager() {
 
                           <td className="px-3 py-2 text-center tabular-nums">
                             {exam.allocatedCapacity != null
-                              ? fa(exam.allocatedCapacity)
+                              ? num(exam.allocatedCapacity)
                               : "—"}
                           </td>
 
                           <td className="px-3 py-2 text-center tabular-nums">
                             {exam.ownCapacity != null
-                              ? fa(exam.ownCapacity)
+                              ? num(exam.ownCapacity)
                               : "—"}
                           </td>
 
                           <td className="hidden px-3 py-2 text-center tabular-nums text-muted-foreground sm:table-cell">
-                            {fa(guest)}
+                            {num(guest)}
                           </td>
 
                           <td className="px-2 py-2">
@@ -705,10 +709,10 @@ export function ExamCapacityManager() {
                               >
                                 <Users className="size-3.5" />
                                 <span className="hidden sm:inline">
-                                  مدیریت مهمان‌ها
+                                  {tl("manageGuests")}
                                 </span>
                                 <span className="sm:hidden">
-                                  مهمان
+                                  {tl("guest")}
                                 </span>
                               </Button>
 
@@ -717,7 +721,7 @@ export function ExamCapacityManager() {
                                 size="icon"
                                 variant="ghost"
                                 className="size-8"
-                                aria-label={`ویرایش ظرفیت ${exam.examTitle}`}
+                                aria-label={tl("editCapacityFor", { p0: exam.examTitle })}
                                 onClick={() => handleEdit(exam)}
                               >
                                 <Pencil className="size-4" />
@@ -756,7 +760,7 @@ export function ExamCapacityManager() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Users className="size-5 text-primary" />
-              مدیریت دانشگاه‌های مهمان
+              {tl("manageGuestUniversities")}
             </DialogTitle>
 
             <DialogDescription>
@@ -787,7 +791,7 @@ export function ExamCapacityManager() {
                   onClick={() => loadGuestData(guestExam)}
                 >
                   <RefreshCw className="me-2 size-4" />
-                  تلاش مجدد
+                  {tl("tryAgain")}
                 </Button>
               )}
             </div>
@@ -798,11 +802,11 @@ export function ExamCapacityManager() {
                 <div className="rounded-lg border bg-muted/30 p-3">
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <span className="text-muted-foreground">
-                      حداکثر ظرفیت مجاز مهمان
+                      {tl("maximumAllowedGuestCapacity")}
                     </span>
 
                     <strong className="tabular-nums">
-                      {fa(
+                      {num(
                         Math.max(
                           0,
                           (guestExam.allocatedCapacity ?? 0) -
@@ -813,26 +817,26 @@ export function ExamCapacityManager() {
                   </div>
 
                   <p className="mt-1 text-xs text-muted-foreground">
-                    مجموع ظرفیت دانشگاه‌های مهمان نباید از این مقدار بیشتر شود.
+                    {tl("theTotalCapacityOfGuest")}
                   </p>
                 </div>
               )}
 
               {guestExam && !isElectronic(guestExam) && (
                 <p className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
-                  این آزمون کاغذی است؛ محدودیت تجمیعی ظرفیت مهمان اعمال نمی‌شود.
+                  {tl("thisIsAPaperBased")}
                 </p>
               )}
 
               {/* فرم ثبت یا ویرایش */}
               <section className="space-y-3 rounded-lg border p-3">
                 <h3 className="text-sm font-semibold">
-                  ثبت یا ویرایش ظرفیت مهمان
+                  {tl("addOrEditGuestCapacity")}
                 </h3>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium">
-                    دانشگاه مهمان
+                    {tl("guestUniversity")}
                   </label>
 
                   <Select
@@ -841,7 +845,7 @@ export function ExamCapacityManager() {
                     disabled={guestSaving}
                   >
                     <SelectTrigger className="h-(--density-control) w-full text-sm">
-                      <SelectValue placeholder="دانشگاه را انتخاب کنید" />
+                      <SelectValue placeholder={tl("selectAUniversity")} />
                     </SelectTrigger>
 
                     <SelectContent {...selectContentProps}>
@@ -862,7 +866,7 @@ export function ExamCapacityManager() {
                     htmlFor="guest-capacity"
                     className="text-xs font-medium"
                   >
-                    ظرفیت دانشگاه مهمان
+                    {tl("guestUniversityCapacity")}
                   </label>
 
                   <Input
@@ -872,7 +876,7 @@ export function ExamCapacityManager() {
                     min={1}
                     step={1}
                     className="h-(--density-control) tabular-nums"
-                    placeholder="تعداد ظرفیت"
+                    placeholder={tl("capacity")}
                     value={guestCapacity}
                     onChange={(event) =>
                       setGuestCapacity(event.target.value)
@@ -893,7 +897,7 @@ export function ExamCapacityManager() {
                     onClick={handleSaveGuestCapacity}
                   >
                     <Save className="me-2 size-4" />
-                    {guestSaving ? "در حال ذخیره..." : "ذخیره ظرفیت"}
+                    {guestSaving ? tl("saving") : tl("saveCapacity")}
                   </Button>
 
                   <Button
@@ -905,7 +909,7 @@ export function ExamCapacityManager() {
                       setGuestCapacity("");
                     }}
                   >
-                    پاک کردن فرم
+                    {tl("clearForm")}
                   </Button>
                 </div>
               </section>
@@ -914,11 +918,11 @@ export function ExamCapacityManager() {
               <section className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold">
-                    دانشگاه‌های مهمان ثبت‌شده
+                    {tl("recordedGuestUniversities")}
                   </h3>
 
                   <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums">
-                    {fa(guestCapacities.length)} دانشگاه
+                    {num(guestCapacities.length)} {tl("university")}
                   </span>
                 </div>
 
@@ -927,7 +931,7 @@ export function ExamCapacityManager() {
                     <Users className="mx-auto mb-2 size-7 text-muted-foreground" />
 
                     <p className="text-sm text-muted-foreground">
-                      هنوز دانشگاه مهمانی برای این آزمون ثبت نشده است.
+                      {tl("noGuestUniversityHasBeen")}
                     </p>
                   </div>
                 ) : (
@@ -937,19 +941,19 @@ export function ExamCapacityManager() {
                         <thead>
                           <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
                             <th className="px-3 py-2 text-start font-medium">
-                              دانشگاه
+                              {tl("university")}
                             </th>
 
                             <th className="px-3 py-2 text-center font-medium">
-                              ظرفیت
+                              {tl("capacity2")}
                             </th>
 
                             <th className="px-3 py-2 text-center font-medium">
-                              وضعیت
+                              {tl("status")}
                             </th>
 
                             <th className="px-2 py-2 text-center font-medium">
-                              عملیات
+                              {tl("actions")}
                             </th>
                           </tr>
                         </thead>
@@ -965,7 +969,7 @@ export function ExamCapacityManager() {
                               </td>
 
                               <td className="px-3 py-2 text-center tabular-nums">
-                                {fa(item.capacity)}
+                                {num(item.capacity)}
                               </td>
 
                               <td className="px-3 py-2 text-center">
@@ -976,7 +980,7 @@ export function ExamCapacityManager() {
                                       : "text-xs text-muted-foreground"
                                   }
                                 >
-                                  {item.isActive ? "فعال" : "غیرفعال"}
+                                  {item.isActive ? tl("active") : tl("inactive")}
                                 </span>
                               </td>
 
@@ -986,7 +990,7 @@ export function ExamCapacityManager() {
                                   size="icon"
                                   variant="ghost"
                                   className="size-8"
-                                  title="ویرایش ظرفیت"
+                                  title={tl("editCapacity")}
                                   disabled={guestSaving}
                                   onClick={() => editGuestCapacity(item)}
                                 >
@@ -1020,6 +1024,8 @@ function CapacityUsage({
   used: number;
   approved: number;
 }) {
+  const { num, date } = useFormatters();
+  const tl = useTranslations("screens.examCapacities.examCapacityManager");
   const free = approved - used;
   const over = free < 0;
 
@@ -1030,11 +1036,11 @@ function CapacityUsage({
     <div className="w-full space-y-1 sm:min-w-56 sm:max-w-sm sm:flex-1">
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">
-          ظرفیت آزمون‌های الکترونیک
+          {tl("electronicExamCapacity")}
         </span>
 
         <span className={cn("tabular-nums", over && "text-destructive")}>
-          {fa(used)} از {fa(approved)}
+          {num(used)} {tl("of")} {num(approved)}
         </span>
       </div>
 
@@ -1044,7 +1050,7 @@ function CapacityUsage({
         aria-valuemin={0}
         aria-valuemax={approved}
         aria-valuenow={used}
-        aria-label="میزان پرشدن ظرفیت مصوب"
+        aria-label={tl("approvedCapacityUtilization")}
       >
         <div
           className={cn(
@@ -1060,7 +1066,7 @@ function CapacityUsage({
       <div className="flex items-center justify-between text-xs">
         <span className="flex items-center gap-1.5">
           <span className="size-2 rounded-full bg-primary" />
-          پرشده <b className="tabular-nums">{fa(used)}</b>
+          {tl("filled")} <b className="tabular-nums">{num(used)}</b>
         </span>
 
         <span
@@ -1076,8 +1082,8 @@ function CapacityUsage({
             )}
           />
 
-          {over ? "بیش از مصوب" : "خالی"}{" "}
-          <b className="tabular-nums">{fa(Math.abs(free))}</b>
+          {over ? tl("overApproved") : tl("empty")}{" "}
+          <b className="tabular-nums">{num(Math.abs(free))}</b>
         </span>
       </div>
     </div>
@@ -1105,6 +1111,8 @@ function ExamCapacityForm({
   onSave: () => void;
   saving: boolean;
 }) {
+  const { num, date } = useFormatters();
+  const tl = useTranslations("screens.examCapacities.examCapacityManager");
   const allocated = Number(allocatedCapacity || 0);
   const own = Number(ownCapacity || 0);
 
@@ -1134,14 +1142,14 @@ function ExamCapacityForm({
       }}
     >
       <div className="flex flex-wrap gap-1.5 text-xs">
-        <Chip label="نوبت" value={exam.examSessionTitle || "—"} />
-        <Chip label="نوع" value={exam.examModeTitle || "—"} />
+        <Chip label={tl("session")} value={exam.examSessionTitle || "—"} />
+        <Chip label={tl("type2")} value={exam.examModeTitle || "—"} />
 
         <Chip
-          label="تاریخ"
+          label={tl("date")}
           value={
             exam.examDate
-              ? new Date(exam.examDate).toLocaleDateString("fa-IR")
+              ? date(new Date(exam.examDate))
               : "—"
           }
         />
@@ -1150,7 +1158,7 @@ function ExamCapacityForm({
       <div className="grid grid-cols-2 gap-2.5">
         <div className="space-y-1">
           <label htmlFor="allocated" className="text-xs font-medium">
-            ظرفیت کل
+            {tl("totalCapacity")}
           </label>
 
           <Input
@@ -1170,7 +1178,7 @@ function ExamCapacityForm({
 
         <div className="space-y-1">
           <label htmlFor="own" className="text-xs font-medium">
-            ظرفیت اختصاصی
+            {tl("dedicatedCapacity")}
           </label>
 
           <Input
@@ -1193,7 +1201,7 @@ function ExamCapacityForm({
         <div
           className="flex h-2 overflow-hidden rounded-full bg-muted"
           role="img"
-          aria-label="نسبت ظرفیت اختصاصی به کل"
+          aria-label={tl("dedicatedToTotalCapacityRatio")}
         >
           <div
             className="bg-primary transition-[width]"
@@ -1206,8 +1214,8 @@ function ExamCapacityForm({
         <div className="flex items-center justify-between text-xs">
           <span className="flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-primary" />
-            اختصاصی
-            <b className="tabular-nums">{fa(own)}</b>
+            {tl("dedicated")}
+            <b className="tabular-nums">{num(own)}</b>
           </span>
 
           <span
@@ -1223,21 +1231,21 @@ function ExamCapacityForm({
               )}
             />
 
-            مهمان
-            <b className="tabular-nums">{fa(guest)}</b>
+            {tl("guest")}
+            <b className="tabular-nums">{num(guest)}</b>
           </span>
         </div>
 
         {invalid && (
           <p className="text-xs text-destructive">
-            ظرفیت اختصاصی نمی‌تواند بیشتر از ظرفیت کل باشد.
+            {tl("dedicatedCapacityCanTExceed")}
           </p>
         )}
       </div>
 
       <Button type="submit" disabled={!canSave} className="h-9 w-full">
         <Save className="me-2 size-4" />
-        {saving ? "در حال ذخیره..." : "ذخیره ظرفیت"}
+        {saving ? tl("saving") : tl("saveCapacity")}
       </Button>
     </form>
   );

@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { MenuDto } from "../types";
+import { useTranslations } from "next-intl";
 
 type MenuTreeNode = MenuDto & {
   children: MenuTreeNode[];
@@ -169,6 +170,7 @@ function MenuNode({
   onEdit,
   onDelete,
 }: MenuNodeProps) {
+  const tl = useTranslations("screens.menus.menusTree");
   const hasChildren = node.children.length > 0;
   const isExpanded = searching || expandedIds.has(node.id);
   const isAction = Boolean(node.controllerName || node.actionName);
@@ -192,7 +194,7 @@ function MenuNode({
           type="button"
           onClick={() => hasChildren && onToggle(node.id)}
           disabled={!hasChildren}
-          aria-label={isExpanded ? "بستن زیرمنوها" : "باز کردن زیرمنوها"}
+          aria-label={isExpanded ? tl("collapseSubmenus") : tl("expandSubmenus")}
           className={cn(
             "grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors",
             hasChildren
@@ -233,13 +235,13 @@ function MenuNode({
 
             {!node.showMenu && (
               <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                مخفی
+                {tl("hidden")}
               </span>
             )}
 
             {!node.isActive && (
               <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[10px] text-destructive">
-                غیرفعال
+                {tl("inactive")}
               </span>
             )}
           
@@ -264,8 +266,8 @@ function MenuNode({
               variant="ghost"
               size="icon-sm"
               className="size-8"
-              title="افزودن زیرمنو"
-              aria-label={`افزودن زیرمنو برای ${node.menuTitle}`}
+              title={tl("addSubmenu")}
+              aria-label={tl("addSubmenuTo", { p0: node.menuTitle })}
               onClick={() => onCreateChild(node)}
             >
               <Plus className="size-4" />
@@ -278,8 +280,8 @@ function MenuNode({
               variant="ghost"
               size="icon-sm"
               className="size-8"
-              title="ویرایش"
-              aria-label={`ویرایش ${node.menuTitle}`}
+              title={tl("edit")}
+              aria-label={tl("edit2", { p0: node.menuTitle })}
               onClick={() => onEdit(node)}
             >
               <Pencil className="size-4" />
@@ -292,8 +294,8 @@ function MenuNode({
               variant="ghost"
               size="icon-sm"
               className="size-8 text-destructive hover:text-destructive"
-              title="حذف"
-              aria-label={`حذف ${node.menuTitle}`}
+              title={tl("delete")}
+              aria-label={tl("delete2", { p0: node.menuTitle })}
               onClick={() => onDelete(node)}
             >
               <Trash2 className="size-4" />
@@ -336,6 +338,7 @@ export function MenusTree({
   onEdit,
   onDelete,
 }: MenusTreeProps) {
+  const tl = useTranslations("screens.menus.menusTree");
   const [search, setSearch] = useState("");
 
 const [expandedState, setExpandedState] = useState<{
@@ -405,8 +408,8 @@ function collapseAll() {
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="جست‌وجو در عنوان، کنترلر یا اکشن منو..."
-            aria-label="جست‌وجو در منوها"
+            placeholder={tl("searchByMenuTitleController")}
+            aria-label={tl("searchMenus")}
             maxLength={100}
             className="h-9 ps-9"
           />
@@ -418,7 +421,7 @@ function collapseAll() {
             onClick={onCreateRoot}
           >
             <Plus className="size-4" aria-hidden />
-            افزودن منوی اصلی
+            {tl("addMainMenu")}
           </Button>
         )}
       </div>
@@ -427,7 +430,7 @@ function collapseAll() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
           <div className="flex items-center gap-2">
             <MenuIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium">ساختار منوها</span>
+            <span className="text-sm font-medium">{tl("menuStructure")}</span>
             <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
               {menus.length}
             </span>
@@ -441,7 +444,7 @@ function collapseAll() {
               onClick={expandAll}
               disabled={menus.length === 0}
             >
-              باز کردن همه
+              {tl("expandAll")}
             </Button>
             <Button
               type="button"
@@ -450,7 +453,7 @@ function collapseAll() {
               onClick={collapseAll}
               disabled={menus.length === 0}
             >
-              بستن همه
+              {tl("collapseAll")}
             </Button>
           </div>
         </div>
@@ -478,12 +481,12 @@ function collapseAll() {
           <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
             <Folder className="size-9 text-muted-foreground/50" />
             <p className="text-sm font-medium">
-              {search ? "موردی با این عبارت پیدا نشد." : "هنوز منویی ثبت نشده است."}
+              {search ? tl("noResultsMatchYourSearch") : tl("noMenusYet")}
             </p>
             <p className="text-xs text-muted-foreground">
               {search
-                ? "عبارت جست‌وجو را تغییر دهید."
-                : "برای شروع، یک منوی اصلی ایجاد کنید."}
+                ? tl("tryADifferentSearchTerm")
+                : tl("toGetStartedCreateA")}
             </p>
           </div>
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
@@ -21,49 +21,48 @@ type SidebarNavProps = {
 function SidebarSkeleton() {
   return (
     <div className="space-y-2 px-3 py-2" aria-busy="true">
-      <div className="h-3.5 w-24 animate-pulse rounded bg-muted" />
-      <div className="h-8 animate-pulse rounded bg-muted" />
-      <div className="h-8 animate-pulse rounded bg-muted" />
-      <div className="h-8 animate-pulse rounded bg-muted" />
+      <div className="h-9 animate-pulse rounded-lg bg-muted" />
+      <div className="h-9 animate-pulse rounded-lg bg-muted" />
+      <div className="h-9 animate-pulse rounded-lg bg-muted" />
+      <div className="h-9 animate-pulse rounded-lg bg-muted" />
     </div>
   );
 }
 
 export function SidebarNav({ collapsed = false, onNavigate, badges = {} }: SidebarNavProps) {
-  const t = useTranslations("nav");
+  const t = useTranslations("shell.sidebar");
+  const tn = useTranslations("nav");
   const menu = useSidebarMenu(onNavigate);
   const { locale, pathname, search, filteredMenus, failed, handleNavigate } = menu;
 
   if (menu.loading) return <SidebarSkeleton />;
 
   const hasShortcuts = menu.favoriteMenus.length > 0 || menu.recentMenus.length > 0;
+  const dashboardActive = pathname === "/dashboard";
 
   return (
     <>
-      <nav aria-label={t("label")} className="flex min-w-0 flex-col gap-1 px-1.5 md:px-2">
+      <nav aria-label={tn("label")} className="flex min-w-0 flex-col gap-1 px-2">
         <Link
           href="/dashboard"
           onClick={handleNavigate}
-          title={collapsed ? "Dashboard" : undefined}
-          aria-current={pathname === "/dashboard" ? "page" : undefined}
+          title={collapsed ? t("dashboard") : undefined}
+          aria-current={dashboardActive ? "page" : undefined}
           className={cn(
-            "flex h-(--density-control) min-w-0 items-center gap-2.5 rounded-md border px-2.5 text-sm transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+            "relative flex min-h-(--density-control) min-w-0 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors duration-150",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
             collapsed && "justify-center px-0",
-            pathname === "/dashboard"
-              ? "border-border/70 bg-accent font-medium text-foreground"
-              : "border-transparent text-muted-foreground hover:bg-accent/70 hover:text-foreground",
+            dashboardActive
+              ? "bg-primary/10 font-semibold text-primary before:absolute before:inset-y-1.5 before:start-0 before:w-[3px] before:rounded-full before:bg-primary"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground",
           )}
         >
           <LayoutDashboard className="size-4 shrink-0" aria-hidden />
-          <span className={cn("truncate", collapsed && "sr-only")}>
-            {locale === "fa" ? "داشبورد" : "Dashboard"}
-          </span>
+          <span className={cn("truncate", collapsed && "sr-only")}>{t("dashboard")}</span>
         </Link>
 
         {!collapsed && (
           <SidebarSearch
-            locale={locale}
             value={search}
             onChange={menu.setSearch}
             onOpenQuickSearch={() => {
@@ -91,25 +90,22 @@ export function SidebarNav({ collapsed = false, onNavigate, badges = {} }: Sideb
         </div>
 
         {search && filteredMenus.length === 0 && (
-          <p className="px-3 py-3 text-center text-xs text-muted-foreground">
-            {locale === "fa" ? "منویی با این عنوان پیدا نشد." : "No matching menu found."}
-          </p>
+          <p className="px-3 py-3 text-center text-xs text-muted-foreground">{t("noMenuMatch")}</p>
         )}
 
         {failed && !collapsed && (
-          <div className="mt-2 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-muted-foreground">
-            <p>
-              {locale === "fa"
-                ? "دریافت منوها از سرور ناموفق بود."
-                : "Failed to load menus from server."}
-            </p>
+          <div
+            role="alert"
+            className="mt-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-foreground/80"
+          >
+            <p>{t("loadFailed")}</p>
             <button
               type="button"
-              className="mt-2 inline-flex items-center gap-1 font-medium text-primary underline"
+              className="mt-2 inline-flex min-h-8 items-center gap-1 font-medium text-primary underline-offset-2 hover:underline"
               onClick={menu.reload}
             >
-              <Activity className="size-3" />
-              {t("retry")}
+              <RefreshCw className="size-3" aria-hidden />
+              {tn("retry")}
             </button>
           </div>
         )}

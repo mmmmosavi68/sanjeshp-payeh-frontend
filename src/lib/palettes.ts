@@ -13,7 +13,7 @@ export type PaletteDefinition = {
   labelKey: `palettes.${string}`;
 };
 
-export const DEFAULT_PALETTE: Palette = "neutral";
+export const DEFAULT_PALETTE: Palette = "indigo";
 export const PALETTE_STORAGE_KEY = "palette";
 
 export const PALETTES: readonly PaletteDefinition[] = data.map((p) => ({

@@ -32,6 +32,7 @@ import {
   listAvailableGroupMenus,
   updateGroupMenuAccess,
 } from "../api";
+import { useTranslations } from "next-intl";
 
 type GroupMenuAccessDialogProps = {
   open: boolean;
@@ -145,6 +146,7 @@ function MenuAccessNode({
   onToggle,
   onExpand,
 }: MenuAccessNodeProps) {
+  const tl = useTranslations("screens.groups.groupMenuAccessDialog");
   const hasChildren = node.children.length > 0;
   const expanded = searching || expandedIds.has(node.id);
 
@@ -174,7 +176,7 @@ function MenuAccessNode({
           type="button"
           onClick={() => hasChildren && onExpand(node.id)}
           disabled={!hasChildren}
-          aria-label={expanded ? "بستن زیرمنوها" : "باز کردن زیرمنوها"}
+          aria-label={expanded ? tl("collapseSubmenus") : tl("expandSubmenus")}
           className="grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted-foreground/10 disabled:cursor-default disabled:opacity-30"
         >
           {hasChildren ? (
@@ -199,7 +201,7 @@ function MenuAccessNode({
             }}
             onChange={() => onToggle(node)}
             className="size-4 shrink-0 cursor-pointer accent-primary"
-            aria-label={`دسترسی به ${node.menuTitle}`}
+            aria-label={tl("accessTo", { p0: node.menuTitle })}
           />
 
           <Icon
@@ -217,7 +219,7 @@ function MenuAccessNode({
 
           {node.showMenu === false ? (
             <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-              مخفی
+              {tl("hidden")}
             </span>
           ) : null}
         </label>
@@ -254,6 +256,7 @@ export function GroupMenuAccessDialog({
   onOpenChange,
   group,
 }: GroupMenuAccessDialogProps) {
+  const tl = useTranslations("screens.groups.groupMenuAccessDialog");
   const [menus, setMenus] = useState<GroupMenuDto[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     new Set(),
@@ -378,13 +381,13 @@ export function GroupMenuAccessDialog({
         menuIds: Array.from(selectedIds),
       });
 
-      toast.success("دسترسی منوهای گروه با موفقیت ذخیره شد.");
+      toast.success(tl("groupMenuAccessSavedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "ذخیره دسترسی منوها ناموفق بود.",
+          : tl("couldnTSaveTheMenu"),
       );
     } finally {
       setSaving(false);
@@ -432,11 +435,11 @@ export function GroupMenuAccessDialog({
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <MenuIcon className="size-5" aria-hidden />
-            مدیریت دسترسی منوها
+            {tl("menuAccessManagement")}
           </DialogTitle>
 
           <DialogDescription>
-            تعیین منوهای قابل دسترسی برای گروه
+            {tl("chooseWhichMenusThisGroup")}
             {group ? ` «${group.groupName}»` : ""}.
           </DialogDescription>
         </DialogHeader>
@@ -451,7 +454,7 @@ export function GroupMenuAccessDialog({
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="جست‌وجو در عنوان یا مسیر منو..."
+              placeholder={tl("searchByMenuTitleOr")}
               className="h-9 ps-9"
               maxLength={100}
               disabled={loading || failed}
@@ -460,7 +463,7 @@ export function GroupMenuAccessDialog({
 
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary tabular-nums">
-              {selectedCount} منوی انتخاب‌شده
+              {selectedCount} {tl("selectedMenu")}
             </span>
 
             <div className="flex flex-wrap items-center gap-1">
@@ -471,7 +474,7 @@ export function GroupMenuAccessDialog({
                 onClick={selectAll}
                 disabled={loading || menus.length === 0}
               >
-                انتخاب همه
+                {tl("selectAll")}
               </Button>
 
               <Button
@@ -481,7 +484,7 @@ export function GroupMenuAccessDialog({
                 onClick={clearSelection}
                 disabled={loading || selectedCount === 0}
               >
-                پاک کردن انتخاب
+                {tl("clearSelection")}
               </Button>
             </div>
           </div>
@@ -490,12 +493,12 @@ export function GroupMenuAccessDialog({
             {loading ? (
               <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-5 animate-spin" />
-                در حال دریافت اطلاعات دسترسی‌ها...
+                {tl("loadingAccessInformation")}
               </div>
             ) : failed ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center">
                 <p className="text-sm text-destructive">
-                  دریافت اطلاعات منوها ناموفق بود.
+                  {tl("couldnTLoadTheMenus")}
                 </p>
 
                 <Button
@@ -504,7 +507,7 @@ export function GroupMenuAccessDialog({
                   size="sm"
                   onClick={handleRetry}
                 >
-                  تلاش مجدد
+                  {tl("tryAgain")}
                 </Button>
               </div>
             ) : filteredTree.length > 0 ? (
@@ -516,7 +519,7 @@ export function GroupMenuAccessDialog({
                     size="sm"
                     onClick={expandAll}
                   >
-                    باز کردن همه
+                    {tl("expandAll")}
                   </Button>
 
                   <Button
@@ -525,7 +528,7 @@ export function GroupMenuAccessDialog({
                     size="sm"
                     onClick={collapseAll}
                   >
-                    بستن همه
+                    {tl("collapseAll")}
                   </Button>
                 </div>
 
@@ -548,13 +551,13 @@ export function GroupMenuAccessDialog({
 
                 <p className="text-sm font-medium">
                   {search
-                    ? "موردی با این عبارت پیدا نشد."
-                    : "منویی برای نمایش وجود ندارد."}
+                    ? tl("noResultsMatchYourSearch")
+                    : tl("thereAreNoMenusTo")}
                 </p>
 
                 {search ? (
                   <p className="text-xs text-muted-foreground">
-                    عبارت جست‌وجو را تغییر دهید.
+                    {tl("tryADifferentSearchTerm")}
                   </p>
                 ) : null}
               </div>
@@ -568,7 +571,7 @@ export function GroupMenuAccessDialog({
               disabled={saving}
               onClick={() => handleOpenChange(false)}
             >
-              انصراف
+              {tl("cancel")}
             </Button>
 
             <Button
@@ -581,7 +584,7 @@ export function GroupMenuAccessDialog({
               ) : (
                 <Save className="size-4" aria-hidden />
               )}
-              ذخیره دسترسی‌ها
+              {tl("saveAccess")}
             </Button>
           </div>
         </div>

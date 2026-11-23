@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils";
 
 import { AppHeader } from "./app-header";
 import { Brand } from "./brand";
-import { LogoutLink } from "./logout-link";
 import { SidebarNav } from "./sidebar-nav";
+import { SidebarProfile } from "./sidebar-profile";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations("common");
@@ -35,7 +35,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className="min-h-dvh bg-background">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-4 focus:py-2"
+          className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-card focus:px-4 focus:py-2 focus:shadow-lg"
         >
           {t("skipToContent")}
         </a>
@@ -48,19 +48,27 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           onOpenMobile={() => setMobileOpen(true)}
         />
 
-        {/* Desktop sidebar */}
+        {/* Desktop sidebar: تمام‌قد، با نشان در بالا و پروفایل در پایین */}
         <aside
           id="desktop-sidebar"
           className={cn(
-            "fixed bottom-0 start-0 top-(--header-h) z-30 hidden flex-col overflow-hidden border-e bg-background transition-[width] duration-200 md:flex",
+            "fixed inset-y-0 start-0 z-40 hidden flex-col overflow-hidden border-e bg-card transition-[width] duration-200 ease-out md:flex",
             collapsed ? "w-(--sidebar-w-collapsed)" : "w-(--sidebar-w)",
           )}
         >
-          <div className="flex-1 overflow-y-auto py-2">
+          <div
+            className={cn(
+              "flex h-(--header-h) shrink-0 items-center border-b px-3",
+              collapsed && "justify-center px-0",
+            )}
+          >
+            <Brand compact={collapsed} />
+          </div>
+          <div className="flex-1 overflow-y-auto overscroll-contain py-3">
             <SidebarNav collapsed={collapsed} />
           </div>
-          <div className="border-t p-2">
-            <LogoutLink collapsed={collapsed} />
+          <div className="shrink-0 border-t p-2.5">
+            <SidebarProfile collapsed={collapsed} />
           </div>
         </aside>
 
@@ -69,21 +77,19 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <SheetContent
             id="mobile-sidebar"
             side={dir === "rtl" ? "right" : "left"}
-            className="w-72! max-w-[85vw]! gap-0 p-0 sm:max-w-[85vw]!"
+            className="w-80! max-w-[88vw]! gap-0 bg-card p-0 sm:max-w-[88vw]!"
           >
             <SheetTitle className="sr-only">{t("menuTitle")}</SheetTitle>
-            <SheetDescription className="sr-only">
-              {t("menuDescription")}
-            </SheetDescription>
+            <SheetDescription className="sr-only">{t("menuDescription")}</SheetDescription>
 
-            <div className="flex h-(--header-h) items-center border-b px-4 ltr:pe-14 rtl:ps-14">
+            <div className="flex h-(--header-h) shrink-0 items-center border-b px-4 ltr:pe-14 rtl:ps-14">
               <Brand />
             </div>
-            <div className="flex-1 overflow-y-auto py-2">
+            <div className="flex-1 overflow-y-auto overscroll-contain py-3">
               <SidebarNav onNavigate={() => setMobileOpen(false)} />
             </div>
-            <div className="border-t p-2">
-              <LogoutLink onNavigate={() => setMobileOpen(false)} />
+            <div className="shrink-0 border-t p-3">
+              <SidebarProfile onNavigate={() => setMobileOpen(false)} />
             </div>
           </SheetContent>
         </Sheet>
@@ -92,20 +98,22 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <main
           id="main-content"
           className={cn(
-            "flex min-h-dvh flex-col px-(--density-page-x) pt-[calc(var(--header-h)+var(--density-page-y))] transition-[padding] duration-200",
+            "flex min-h-dvh min-w-0 flex-col px-(--density-page-x) pt-[calc(var(--header-h)+var(--density-page-y))] transition-[padding] duration-200 ease-out",
             collapsed
               ? "md:ps-[calc(var(--sidebar-w-collapsed)+var(--density-page-x))]"
               : "md:ps-[calc(var(--sidebar-w)+var(--density-page-x))]",
           )}
         >
-          <div className="flex-1 pb-(--density-page-y)">{children}</div>
-          <footer className="border-t py-3 text-xs text-muted-foreground">
+          <div className="mx-auto w-full max-w-[1600px] flex-1 pb-(--density-page-y) animate-page-in">
+            {children}
+          </div>
+          <footer className="border-t py-4 text-xs text-muted-foreground">
             {tf.rich("rights", {
               year,
               name: t("appName"),
               companyName: t("company"),
               company: (chunks) => (
-                <span className="font-semibold text-destructive">{chunks}</span>
+                <span className="font-semibold text-red-500 hover:text-red-400 cursor-pointer">{chunks}</span>
               ),
             })}
           </footer>

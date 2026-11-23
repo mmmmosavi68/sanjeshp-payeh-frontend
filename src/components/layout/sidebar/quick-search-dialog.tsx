@@ -1,6 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
@@ -28,7 +29,7 @@ export function QuickSearchDialog({
   onClose,
   onNavigate,
 }: QuickSearchDialogProps) {
-  const fa = locale === "fa";
+  const t = useTranslations("shell.quick");
 
   return (
     <div
@@ -40,7 +41,7 @@ export function QuickSearchDialog({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={fa ? "جستجوی سریع صفحات" : "Quick page search"}
+        aria-label={t("dialogLabel")}
         className="w-full max-w-lg overflow-hidden rounded-lg border bg-popover shadow-lg"
       >
         <div className="flex items-center gap-2 border-b px-3">
@@ -50,13 +51,13 @@ export function QuickSearchDialog({
             type="search"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={fa ? "نام صفحه موردنظر را جستجو کنید..." : "Search for a page..."}
+            placeholder={t("placeholder")}
             className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           <button
             type="button"
             onClick={onClose}
-            aria-label={fa ? "بستن" : "Close"}
+            aria-label={t("close")}
             className="grid size-8 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-accent"
           >
             <X className="size-4" />
@@ -85,13 +86,13 @@ export function QuickSearchDialog({
             </div>
           ) : (
             <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-              {fa ? "صفحه‌ای با این عنوان پیدا نشد." : "No matching page found."}
+              {t("noResults")}
             </p>
           )}
         </div>
 
         <div className="flex items-center justify-between border-t px-3 py-2 text-[11px] text-muted-foreground">
-          <span>{fa ? "برای جستجو نام صفحه را وارد کنید" : "Type to search pages"}</span>
+          <span>{t("hint")}</span>
           <span className="rounded border px-1.5 py-0.5">ESC</span>
         </div>
       </div>

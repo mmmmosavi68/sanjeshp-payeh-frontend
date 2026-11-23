@@ -27,6 +27,7 @@ import {
   type CodeFormInput,
   type CodeFormValues,
 } from "../schemas/code-schema";
+import { useTranslations } from "next-intl";
 
 type CodeFormSheetProps = {
   open: boolean;
@@ -58,6 +59,7 @@ export function CodeFormSheet({
   defaultParentId,
   onSaved,
 }: CodeFormSheetProps) {
+  const tl = useTranslations("screens.codes.codeFormSheet");
   const isEdit = Boolean(code);
   const isGroup = code
     ? code.subCode === 0
@@ -123,16 +125,16 @@ export function CodeFormSheet({
 
         toast.success(
           isGroup
-            ? "گروه با موفقیت ویرایش شد."
-            : "آیتم با موفقیت ویرایش شد.",
+            ? tl("groupUpdatedSuccessfully")
+            : tl("itemUpdatedSuccessfully"),
         );
       } else {
         await createCode(payload);
 
         toast.success(
           isGroup
-            ? "گروه با موفقیت ایجاد شد."
-            : "آیتم با موفقیت ایجاد شد.",
+            ? tl("groupCreatedSuccessfully")
+            : tl("itemCreatedSuccessfully"),
         );
       }
 
@@ -142,7 +144,7 @@ export function CodeFormSheet({
       const message =
         error instanceof Error
           ? error.message
-          : "عملیات ذخیره اطلاعات با خطا مواجه شد.";
+          : tl("savingFailed");
 
       setFormError(message);
     }
@@ -158,17 +160,17 @@ export function CodeFormSheet({
           <SheetTitle>
             {isEdit
               ? isGroup
-                ? "ویرایش گروه اطلاعات پایه"
-                : "ویرایش آیتم اطلاعات پایه"
+                ? tl("editBaseInformationGroup")
+                : tl("editBaseInformationItem")
               : isGroup
-                ? "افزودن گروه اطلاعات پایه"
-                : "افزودن آیتم اطلاعات پایه"}
+                ? tl("addBaseInformationGroup")
+                : tl("addBaseInformationItem")}
           </SheetTitle>
 
           <SheetDescription>
             {isGroup
-              ? "اطلاعات گروه را وارد یا ویرایش کنید."
-              : "اطلاعات آیتم را وارد یا ویرایش کنید."}
+              ? tl("enterOrEditTheGroup")
+              : tl("enterOrEditTheItem")}
           </SheetDescription>
         </SheetHeader>
 
@@ -189,13 +191,13 @@ export function CodeFormSheet({
 
             <section className="space-y-4">
               <h3 className="text-sm font-semibold">
-                اطلاعات اصلی
+                {tl("mainInformation")}
               </h3>
 
               <FormField
                 id="code-title"
-                label="عنوان"
-                placeholder="عنوان را وارد کنید"
+                label={tl("title")}
+                placeholder={tl("enterATitle")}
                 maxLength={200}
                 error={errors.title?.message}
                 {...register("title")}
@@ -204,10 +206,10 @@ export function CodeFormSheet({
               {isGroup ? (
                 <FormField
                   id="code-primary"
-                  label="کد اصلی گروه"
+                  label={tl("groupMainCode")}
                   type="number"
                   inputMode="numeric"
-                  placeholder="مثلاً 6"
+                  placeholder={tl("eG6")}
                   error={errors.primaryCode?.message}
                   {...register("primaryCode", {
                     valueAsNumber: true,
@@ -216,7 +218,7 @@ export function CodeFormSheet({
               ) : (
                 <>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="code-parent">گروه والد</Label>
+                    <Label htmlFor="code-parent">{tl("parentGroup")}</Label>
 
                     <select
                       id="code-parent"
@@ -226,7 +228,7 @@ export function CodeFormSheet({
                           value === "" ? null : Number(value),
                       })}
                     >
-                      <option value="">انتخاب گروه</option>
+                      <option value="">{tl("selectAGroup")}</option>
 
                       {groups.map((group) => (
                         <option key={group.id} value={group.id}>
@@ -245,10 +247,10 @@ export function CodeFormSheet({
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
                       id="code-sub"
-                      label="کد فرعی"
+                      label={tl("subCode")}
                       type="number"
                       inputMode="numeric"
-                      placeholder="مثلاً 12"
+                      placeholder={tl("eG12")}
                       error={errors.subCode?.message}
                       {...register("subCode", {
                         valueAsNumber: true,
@@ -257,10 +259,10 @@ export function CodeFormSheet({
 
                     <FormField
                       id="code-standard"
-                      label="کد استاندارد"
+                      label={tl("standardCode")}
                       type="number"
                       inputMode="numeric"
-                      placeholder="اختیاری"
+                      placeholder={tl("optional")}
                       error={errors.standardCode?.message}
                       {...register("standardCode", {
                         valueAsNumber: true,
@@ -272,14 +274,14 @@ export function CodeFormSheet({
 
               <div className="flex flex-col gap-2">
                 <Label htmlFor="code-additional">
-                  اطلاعات اضافی
+                  {tl("extraInformation")}
                 </Label>
 
                 <textarea
                   id="code-additional"
                   rows={3}
                   maxLength={400}
-                  placeholder="توضیحات اختیاری"
+                  placeholder={tl("optionalDescription")}
                   className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                   {...register("additionalInformation")}
                 />
@@ -309,7 +311,7 @@ export function CodeFormSheet({
                         htmlFor="code-active"
                         className="font-normal"
                       >
-                        این کد فعال باشد
+                        {tl("thisCodeIsActive")}
                       </Label>
                     </div>
                   )}
@@ -326,7 +328,7 @@ export function CodeFormSheet({
                 disabled={isSubmitting}
                 onClick={() => onOpenChange(false)}
               >
-                انصراف
+                {tl("cancel")}
               </Button>
 
               <Button
@@ -337,7 +339,7 @@ export function CodeFormSheet({
                   <Loader2 className="size-4 animate-spin" />
                 )}
 
-                {isEdit ? "ذخیره تغییرات" : "ایجاد"}
+                {isEdit ? tl("saveChanges") : tl("create")}
               </Button>
             </div>
           </SheetFooter>

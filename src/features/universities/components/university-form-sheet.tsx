@@ -27,6 +27,7 @@ import {
 } from "../schemas/university-schema";
 import type { UniversityDto } from "../types";
 import type { UniversityTypeOption } from "../options";
+import { useTranslations } from "next-intl";
 
 type UniversityFormSheetProps = {
   open: boolean;
@@ -54,6 +55,7 @@ export function UniversityFormSheet({
   universityTypes,
   onSaved,
 }: UniversityFormSheetProps) {
+  const tl = useTranslations("screens.universities.universityFormSheet");
   const isEdit = university !== null;
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -105,11 +107,11 @@ export function UniversityFormSheet({
           isActive: values.isActive,
         });
 
-        toast.success("اطلاعات دانشگاه با موفقیت ویرایش شد.");
+        toast.success(tl("universityDetailsUpdatedSuccessfully"));
       } else {
         await createUniversity(payload);
 
-        toast.success("دانشگاه با موفقیت ثبت شد.");
+        toast.success(tl("universityCreatedSuccessfully"));
       }
 
       onOpenChange(false);
@@ -118,7 +120,7 @@ export function UniversityFormSheet({
       setFormError(
         error instanceof Error
           ? error.message
-          : "ذخیره اطلاعات دانشگاه ناموفق بود.",
+          : tl("couldnTSaveTheUniversity"),
       );
     }
   }
@@ -132,11 +134,11 @@ export function UniversityFormSheet({
       <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-xl">
         <SheetHeader className="border-b px-4 py-3 pe-14">
           <SheetTitle>
-            {isEdit ? "ویرایش دانشگاه" : "ثبت دانشگاه جدید"}
+            {isEdit ? tl("editUniversity") : tl("addNewUniversity")}
           </SheetTitle>
 
           <SheetDescription>
-            اطلاعات دانشگاه و در صورت نیاز دانشگاه مادر را مشخص کنید.
+            {tl("specifyTheUniversityDetailsAnd")}
           </SheetDescription>
         </SheetHeader>
 
@@ -160,26 +162,24 @@ export function UniversityFormSheet({
                 role="alert"
                 className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm"
               >
-                گروه «نوع دانشگاه» یا گزینه‌های فعال آن در کدهای اطلاعات پایه
-                پیدا نشد. ابتدا این گروه و گزینه‌های آن را در مدیریت کدها تعریف
-                کنید.
+                {tl("theUniversityTypeGroupOr")}
               </div>
             )}
 
             <section className="space-y-4">
-              <h3 className="text-sm font-semibold">اطلاعات اصلی</h3>
+              <h3 className="text-sm font-semibold">{tl("mainInformation")}</h3>
 
               <FormField
                 id="university-title"
-                label="نام دانشگاه"
-                placeholder="نام دانشگاه را وارد کنید"
+                label={tl("universityName")}
+                placeholder={tl("enterTheUniversityName")}
                 maxLength={200}
                 error={errors.title?.message}
                 {...register("title")}
               />
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="university-type">نوع دانشگاه</Label>
+                <Label htmlFor="university-type">{tl("universityType")}</Label>
 
                 <select
                   id="university-type"
@@ -189,7 +189,7 @@ export function UniversityFormSheet({
                     setValueAs: (value) => (value === "" ? 0 : Number(value)),
                   })}
                 >
-                  <option value={0}>انتخاب نوع دانشگاه</option>
+                  <option value={0}>{tl("selectUniversityType")}</option>
 
                   {universityTypes.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -207,7 +207,7 @@ export function UniversityFormSheet({
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="university-region">منطقه</Label>
+                  <Label htmlFor="university-region">{tl("region")}</Label>
 
                   <select
                     id="university-region"
@@ -219,7 +219,7 @@ export function UniversityFormSheet({
                     {Array.from({ length: 11 }, (_, index) => index + 1).map(
                       (region) => (
                         <option key={region} value={region}>
-                          منطقه {region}
+                          {tl("region")} {region}
                         </option>
                       ),
                     )}
@@ -234,7 +234,7 @@ export function UniversityFormSheet({
 
                 <FormField
                   id="university-capacity"
-                  label="ظرفیت مصوب"
+                  label={tl("approvedCapacity")}
                   type="number"
                   min={0}
                   step={1}
@@ -247,7 +247,7 @@ export function UniversityFormSheet({
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="university-parent">دانشگاه مادر</Label>
+                <Label htmlFor="university-parent">{tl("parentUniversity")}</Label>
 
                 <select
                   id="university-parent"
@@ -257,7 +257,7 @@ export function UniversityFormSheet({
                       value === "" ? null : Number(value),
                   })}
                 >
-                  <option value="">بدون دانشگاه مادر</option>
+                  <option value="">{tl("noParentUniversity")}</option>
 
                   {parentOptions.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -291,7 +291,7 @@ export function UniversityFormSheet({
                         htmlFor="university-active"
                         className="font-normal"
                       >
-                        دانشگاه فعال باشد
+                        {tl("thisUniversityIsActive")}
                       </Label>
                     </div>
                   )}
@@ -308,7 +308,7 @@ export function UniversityFormSheet({
                 disabled={isSubmitting}
                 onClick={() => onOpenChange(false)}
               >
-                انصراف
+                {tl("cancel")}
               </Button>
 
               <Button
@@ -317,7 +317,7 @@ export function UniversityFormSheet({
               >
                 {isSubmitting && <Loader2 className="size-4 animate-spin" />}
 
-                {isEdit ? "ذخیره تغییرات" : "ثبت دانشگاه"}
+                {isEdit ? tl("saveChanges") : tl("createUniversity")}
               </Button>
             </div>
           </SheetFooter>

@@ -38,6 +38,7 @@ import type {
   ExamRegistrationCapacityOptionDto,
   ExamRegistrationOptionsDto,
 } from "../types";
+import { useTranslations } from "next-intl";
 
 interface Props {
   open: boolean;
@@ -98,6 +99,7 @@ export function StudentRegistrationFormDialog({
   registrationId,
   onSaved,
 }: Props) {
+  const tl = useTranslations("screens.studentRegistrations.studentRegistrationFormDialog");
   const isEdit = !!registrationId;
 
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -160,7 +162,7 @@ export function StudentRegistrationFormDialog({
           toast.error(
             error instanceof Error && error.message
               ? error.message
-              : "دریافت اطلاعات فرم ناموفق بود.",
+              : tl("couldnTLoadTheForm"),
           );
         }
       } finally {
@@ -191,12 +193,12 @@ export function StudentRegistrationFormDialog({
     event.preventDefault();
 
     if (!selectedCapacity) {
-      toast.error("دانشگاه محل آزمون و ظرفیت آن را انتخاب کنید.");
+      toast.error(tl("selectTheExamVenueUniversity"));
       return;
     }
 
     if (!/^\d{10}$/.test(form.nationalCode.trim())) {
-      toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد.");
+      toast.error(tl("nationalIdMustBeExactly"));
       return;
     }
 
@@ -226,14 +228,14 @@ export function StudentRegistrationFormDialog({
       if (registrationId) {
         const input: UpdateExamRegistrationInput = commonData;
         await updateExamRegistration(registrationId, input);
-        toast.success("اطلاعات داوطلب با موفقیت ویرایش شد.");
+        toast.success(tl("candidateDetailsUpdatedSuccessfully"));
       } else {
         const input: CreateExamRegistrationInput = {
           ...commonData,
           examId,
         };
         await createExamRegistration(input);
-        toast.success("داوطلب با موفقیت ثبت‌نام شد.");
+        toast.success(tl("candidateRegisteredSuccessfully"));
       }
 
       onSaved();
@@ -242,7 +244,7 @@ export function StudentRegistrationFormDialog({
       toast.error(
         error instanceof Error && error.message
           ? error.message
-          : "ذخیره اطلاعات داوطلب ناموفق بود.",
+          : tl("couldnTSaveTheCandidate"),
       );
     } finally {
       setSaving(false);
@@ -257,10 +259,10 @@ export function StudentRegistrationFormDialog({
       >
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "ویرایش اطلاعات داوطلب" : "ثبت‌نام داوطلب جدید"}
+            {isEdit ? tl("editCandidateDetails") : tl("registerNewCandidate")}
           </DialogTitle>
           <DialogDescription>
-            اطلاعات داوطلب و دانشگاه محل برگزاری آزمون را وارد کنید.
+            {tl("enterTheCandidateSDetails")}
           </DialogDescription>
         </DialogHeader>
 
@@ -270,12 +272,12 @@ export function StudentRegistrationFormDialog({
           </div>
         ) : !options ? (
           <div className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-            دریافت اطلاعات فرم امکان‌پذیر نبود. پنجره را ببندید و دوباره تلاش کنید.
+            {tl("couldnTLoadTheForm2")}
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Field label="نام" required>
+              <Field label={tl("firstName")} required>
                 <Input
                   value={form.firstName}
                   onChange={(e) => updateField("firstName", e.target.value)}
@@ -285,7 +287,7 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="نام خانوادگی" required>
+              <Field label={tl("lastName")} required>
                 <Input
                   value={form.lastName}
                   onChange={(e) => updateField("lastName", e.target.value)}
@@ -295,7 +297,7 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="نام پدر">
+              <Field label={tl("fatherSName")}>
                 <Input
                   value={form.fatherName}
                   onChange={(e) => updateField("fatherName", e.target.value)}
@@ -304,7 +306,7 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="کد ملی" required>
+              <Field label={tl("nationalId")} required>
                 <Input
                   dir="ltr"
                   inputMode="numeric"
@@ -321,23 +323,23 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="جنسیت">
+              <Field label={tl("gender")}>
                 <Select
                   value={form.genderId}
                   onValueChange={(value) => updateField("genderId", value)}
                   disabled={saving}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="انتخاب جنسیت" />
+                    <SelectValue placeholder={tl("selectGender")} />
                   </SelectTrigger>
                   <SelectContent {...selectContentProps}>
-                    <SelectItem value="34">مرد</SelectItem>
-                    <SelectItem value="35">زن</SelectItem>
+                    <SelectItem value="34">{tl("male")}</SelectItem>
+                    <SelectItem value="35">{tl("female")}</SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
 
-              <Field label="شماره شناسنامه">
+              <Field label={tl("birthCertificateNumber")}>
                 <Input
                   value={form.birthCertificateNumber}
                   onChange={(e) =>
@@ -348,7 +350,7 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="تاریخ تولد">
+              <Field label={tl("dateOfBirth")}>
                 <Input
                   type="date"
                   value={form.birthDate}
@@ -357,7 +359,7 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="شماره دانشجویی">
+              <Field label={tl("studentNumber")}>
                 <Input
                   value={form.studentNumber}
                   onChange={(e) =>
@@ -368,7 +370,7 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="سال ورود">
+              <Field label={tl("entryYear")}>
                 <Input
                   type="number"
                   inputMode="numeric"
@@ -380,7 +382,7 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="شماره تماس">
+              <Field label={tl("phoneNumber")}>
                 <Input
                   dir="ltr"
                   inputMode="tel"
@@ -391,7 +393,7 @@ export function StudentRegistrationFormDialog({
                 />
               </Field>
 
-              <Field label="شماره تماس اضطراری">
+              <Field label={tl("emergencyPhoneNumber")}>
                 <Input
                   dir="ltr"
                   inputMode="tel"
@@ -407,7 +409,7 @@ export function StudentRegistrationFormDialog({
 
             <section className="space-y-2 rounded-lg border p-3">
               <h3 className="text-sm font-semibold">
-                دانشگاه محل برگزاری آزمون
+                {tl("examVenueUniversity")}
               </h3>
 
               <Select
@@ -416,7 +418,7 @@ export function StudentRegistrationFormDialog({
                 disabled={saving || options.capacities.length === 0}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="دانشگاه محل آزمون را انتخاب کنید" />
+                  <SelectValue placeholder={tl("selectTheExamVenueUniversity2")} />
                 </SelectTrigger>
 
                 <SelectContent {...selectContentProps}>
@@ -426,7 +428,7 @@ export function StudentRegistrationFormDialog({
                       value={capacity.universityExamCapacityId}
                     >
                       {capacity.examVenueUniversityTitle}
-                      {capacity.isOwnUniversity ? " (دانشگاه اصلی)" : " (مهمان)"}
+                      {capacity.isOwnUniversity ? tl("mainUniversity") : tl("guest")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -435,14 +437,14 @@ export function StudentRegistrationFormDialog({
               {selectedCapacity && (
                 <p className="text-xs text-muted-foreground">
                   {selectedCapacity.isOwnUniversity
-                    ? "ظرفیت دانشگاه اصلی انتخاب شده است."
-                    : `ظرفیت مهمان: ${selectedCapacity.guestCapacity ?? "—"}`}
+                    ? tl("mainUniversityCapacityIsSelected")
+                    : tl("guestCapacity", { p0: selectedCapacity.guestCapacity ?? "—" })}
                 </p>
               )}
 
               {options.capacities.length === 0 && (
                 <p className="text-xs text-destructive">
-                  برای این دانشگاه، ظرفیت قابل انتخابی تعریف نشده است.
+                  {tl("noSelectableCapacityIsDefined")}
                 </p>
               )}
             </section>
@@ -454,7 +456,7 @@ export function StudentRegistrationFormDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={saving}
               >
-                انصراف
+                {tl("cancel")}
               </Button>
 
               <Button
@@ -466,7 +468,7 @@ export function StudentRegistrationFormDialog({
                 ) : (
                   <Save className="me-2 size-4" />
                 )}
-                {saving ? "در حال ذخیره..." : "ذخیره اطلاعات"}
+                {saving ? tl("saving") : tl("saveDetails")}
               </Button>
             </DialogFooter>
           </form>

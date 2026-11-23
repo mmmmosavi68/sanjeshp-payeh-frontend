@@ -19,8 +19,10 @@ import type { MenuDto } from "@/features/menus/types";
 
 import { MenusTree } from "@/features/menus/components/menus-tree";
 import { MenuFormSheet } from "@/features/menus/components/menu-form-sheet";
+import { useTranslations } from "next-intl";
 
 export default function MenusPage() {
+  const tl = useTranslations("screens.menus.page");
   const {
     data,
     loading,
@@ -58,7 +60,7 @@ export default function MenusPage() {
 
     await deleteMenu(deleteTarget.id);
 
-    toast.success("منو با موفقیت حذف شد.");
+    toast.success(tl("menuDeletedSuccessfully"));
     setDeleteTarget(null);
     reload();
   }
@@ -69,10 +71,10 @@ export default function MenusPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">
-            مدیریت منوها
+            {tl("menuManagement")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            ساختار منوهای سامانه و تنظیمات دسترسی و نمایش آن‌ها را مدیریت کنید.
+            {tl("manageTheSystemMenuStructure")}
           </p>
         </div>
 
@@ -90,7 +92,7 @@ export default function MenusPage() {
         <div className="rounded-lg border bg-card px-4 py-16 text-center">
           <div className="mx-auto mb-3 size-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           <p className="text-sm text-muted-foreground">
-            در حال دریافت اطلاعات منوها...
+            {tl("loadingMenus")}
           </p>
         </div>
       )}
@@ -98,8 +100,8 @@ export default function MenusPage() {
       {/* خطای دریافت اطلاعات */}
       {!loading && failed && (
         <ErrorState
-          title="دریافت اطلاعات منوها ناموفق بود"
-          description="ارتباط با سرور برقرار نشد یا امکان دریافت اطلاعات وجود ندارد."
+          title={tl("couldnTLoadTheMenus")}
+          description={tl("couldnTReachTheServer")}
           onRetry={reload}
         />
       )}
@@ -122,14 +124,14 @@ export default function MenusPage() {
       {!loading && !failed && menus.length === 0 && (
         <EmptyState
           icon={<FolderTree className="size-5" />}
-          title="هنوز منویی ثبت نشده است"
-          description="برای شروع، اولین منوی اصلی سامانه را ایجاد کنید."
+          title={tl("noMenusYet")}
+          description={tl("createTheFirstMainMenu")}
           action={
             <Button
               onClick={handleCreateRoot}
             >
               <Plus className="size-4" />
-              ایجاد اولین منو
+              {tl("createTheFirstMenu")}
             </Button>
           }
         />
@@ -151,13 +153,13 @@ export default function MenusPage() {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="حذف منو"
+        title={tl("deleteMenu")}
         description={
           deleteTarget
-            ? `آیا از حذف منوی «${deleteTarget.menuTitle}» اطمینان دارید؟ این عملیات قابل بازگشت نیست.`
+            ? tl("areYouSureYouWant", { p0: deleteTarget.menuTitle })
             : ""
         }
-        confirmLabel="حذف منو"
+        confirmLabel={tl("deleteMenu")}
         onConfirm={handleDelete}
       />
     </div>

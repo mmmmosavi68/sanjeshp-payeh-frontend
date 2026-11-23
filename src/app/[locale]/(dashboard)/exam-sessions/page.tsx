@@ -23,8 +23,12 @@ import type {
 
 import { ExamSessionsTable } from "@/features/exam-sessions/components/exam-sessions-table";
 import { ExamSessionFormSheet } from "@/features/exam-sessions/components/exam-session-form-sheet";
+import { useTranslations } from "next-intl";
+import { useFormatters } from "@/lib/format";
 
 export default function ExamSessionsPage() {
+  const { num, date } = useFormatters();
+  const tl = useTranslations("screens.examSessions.page");
   const [filters, setFilters] = useState<ExamSessionFilters>({});
   const [searchText, setSearchText] = useState("");
 
@@ -64,7 +68,7 @@ export default function ExamSessionsPage() {
     try {
       await deleteExamSession(deleteTarget.id);
 
-      toast.success("نوبت آزمون با موفقیت حذف شد.");
+      toast.success(tl("examSessionDeletedSuccessfully"));
 
       setDeleteTarget(null);
       reload();
@@ -72,7 +76,7 @@ export default function ExamSessionsPage() {
       toast.error(
         error instanceof Error
           ? error.message
-          : "حذف نوبت آزمون ناموفق بود.",
+          : tl("couldnTDeleteTheExam"),
       );
     }
   }
@@ -105,11 +109,11 @@ export default function ExamSessionsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">
-            مدیریت نوبت‌های آزمون
+            {tl("examSessionManagement")}
           </h1>
 
           <p className="text-sm text-muted-foreground">
-            تعریف و مدیریت تاریخ و بازه‌های زمانی برگزاری آزمون‌ها.
+            {tl("defineAndManageExamDates")}
           </p>
         </div>
 
@@ -119,7 +123,7 @@ export default function ExamSessionsPage() {
             className="w-full rounded-full sm:w-auto"
           >
             <Plus className="size-4" />
-            افزودن نوبت آزمون
+            {tl("addExamSession")}
           </Button>
         </Can>
       </div>
@@ -127,7 +131,7 @@ export default function ExamSessionsPage() {
       <section className="space-y-4 rounded-lg border bg-card p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Search className="size-4 text-muted-foreground" />
-          جست‌وجو و فیلتر
+          {tl("searchAndFilters")}
         </div>
 
         <form
@@ -136,8 +140,8 @@ export default function ExamSessionsPage() {
         >
           <FormField
             id="exam-session-search"
-            label="عنوان نوبت"
-            placeholder="جست‌وجوی عنوان نوبت"
+            label={tl("sessionTitle")}
+            placeholder={tl("searchBySessionTitle")}
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
           />
@@ -147,7 +151,7 @@ export default function ExamSessionsPage() {
               htmlFor="exam-session-status"
               className="text-sm font-medium"
             >
-              وضعیت
+              {tl("status")}
             </label>
 
             <select
@@ -162,16 +166,16 @@ export default function ExamSessionsPage() {
               onChange={(event) => handleStatusChange(event.target.value)}
               className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <option value="">همه وضعیت‌ها</option>
-              <option value="active">فعال</option>
-              <option value="inactive">غیرفعال</option>
+              <option value="">{tl("allStatuses")}</option>
+              <option value="active">{tl("active")}</option>
+              <option value="inactive">{tl("inactive")}</option>
             </select>
           </div>
 
           <div className="flex items-end gap-2">
             <Button type="submit">
               <Search className="size-4" />
-              جست‌وجو
+              {tl("search")}
             </Button>
 
             <Button
@@ -182,7 +186,7 @@ export default function ExamSessionsPage() {
                 setFilters({});
               }}
             >
-              پاک‌کردن فیلترها
+              {tl("clearFilters")}
             </Button>
           </div>
         </form>
@@ -193,15 +197,15 @@ export default function ExamSessionsPage() {
           <div className="mx-auto mb-3 size-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
 
           <p className="text-sm text-muted-foreground">
-            در حال دریافت نوبت‌های آزمون...
+            {tl("loadingExamSessions")}
           </p>
         </div>
       )}
 
       {!loading && failed && (
         <ErrorState
-          title="دریافت نوبت‌های آزمون ناموفق بود"
-          description="ارتباط با سرور برقرار نشد یا امکان دریافت اطلاعات وجود ندارد."
+          title={tl("couldnTLoadTheExam")}
+          description={tl("couldnTReachTheServer")}
           onRetry={reload}
         />
       )}
@@ -210,9 +214,9 @@ export default function ExamSessionsPage() {
         <>
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              تعداد نتایج:{" "}
+              {tl("results")}{" "}
               <span className="font-semibold text-foreground">
-                {examSessions.length.toLocaleString("fa-IR")}
+                {num(examSessions.length)}
               </span>
             </p>
           </div>
@@ -228,13 +232,13 @@ export default function ExamSessionsPage() {
       {!loading && !failed && examSessions.length === 0 && (
         <EmptyState
           icon={<CalendarClock className="size-5" />}
-          title="نوبتی پیدا نشد"
-          description="هنوز نوبت آزمونی ثبت نشده است. برای شروع، نوبت جدیدی تعریف کنید."
+          title={tl("noSessionsFound")}
+          description={tl("noExamSessionsHaveBeen")}
           action={
             <Can controller="ExamSessions" action="Create">
               <Button onClick={openCreate}>
                 <Plus className="size-4" />
-                ثبت نوبت جدید
+                {tl("createNewSession")}
               </Button>
             </Can>
           }
@@ -253,13 +257,13 @@ export default function ExamSessionsPage() {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="حذف نوبت آزمون"
+        title={tl("deleteExamSession")}
         description={
           deleteTarget
-            ? `آیا از حذف نوبت «${deleteTarget.title}» اطمینان دارید؟ اگر آزمونی به این نوبت متصل باشد، Backend اجازه حذف نخواهد داد.`
+            ? tl("areYouSureYouWant", { p0: deleteTarget.title })
             : ""
         }
-        confirmLabel="حذف نوبت"
+        confirmLabel={tl("deleteSession")}
         onConfirm={handleDelete}
       />
     </div>

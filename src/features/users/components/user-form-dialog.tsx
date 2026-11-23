@@ -134,6 +134,7 @@ function UserForm({
   onCancel,
   onSaved,
 }: UserFormProps) {
+  const tl = useTranslations("screens.users.userFormDialog");
   const t = useTranslations("users");
   const tc = useTranslations("common");
   const tRoot = useTranslations();
@@ -386,7 +387,7 @@ useEffect(() => {
     return (
       <>
         <option value="" disabled>
-          {codesLoading ? "در حال دریافت اطلاعات..." : "انتخاب کنید"}
+          {codesLoading ? tl("loading") : tl("select")}
         </option>
 
         {items?.map((item) => (
@@ -422,7 +423,7 @@ useEffect(() => {
           className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
         >
           <span>
-            دریافت اطلاعات پایه با خطا مواجه شد. امکان ذخیره فرم وجود ندارد.
+            {tl("couldnTLoadTheBase")}
           </span>
 
           <Button

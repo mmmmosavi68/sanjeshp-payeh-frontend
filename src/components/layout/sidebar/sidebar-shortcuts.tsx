@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { Link } from "@/i18n/navigation";
@@ -86,7 +87,7 @@ export function ShortcutSections({
   badges,
   onNavigate,
 }: ShortcutSectionsProps) {
-  const fa = locale === "fa";
+  const t = useTranslations("shell.sidebar");
   const listProps = { pathname, badges, onNavigate };
 
   return (
@@ -95,7 +96,7 @@ export function ShortcutSections({
         <section className="mb-2 min-w-0 rounded-md border border-warning/25 bg-warning/[0.06] p-1.5">
           <SectionTitle
             icon={<Star className="size-3.5 text-warning" />}
-            title={fa ? "علاقه‌مندی‌ها" : "Favorites"}
+            title={t("favorites")}
             count={`${favoriteMenus.length}/${MAX_FAVORITES}`}
           />
           <ShortcutList nodes={favoriteMenus} {...listProps} />
@@ -106,7 +107,7 @@ export function ShortcutSections({
         <section className="mb-2 min-w-0 rounded-md border border-info/25 bg-info/[0.06] p-1.5">
           <SectionTitle
             icon={<Clock className="size-3.5 text-info" />}
-            title={fa ? "اخیراً بازدیدشده" : "Recently visited"}
+            title={t("recent")}
             count={recentMenus.length}
           />
           <ShortcutList nodes={recentMenus} {...listProps} />

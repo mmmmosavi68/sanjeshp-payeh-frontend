@@ -26,8 +26,12 @@ import type {
 } from "@/features/exams/types";
 
 import { ExamFormSheet } from "@/features/exams/components/exam-form-sheet";
+import { useTranslations } from "next-intl";
+import { useFormatters } from "@/lib/format";
 
 export default function ExamsPage() {
+  const { num, date } = useFormatters();
+  const tl = useTranslations("screens.exams.page");
   const [filters, setFilters] = useState<ExamFilters>({});
   const [searchText, setSearchText] = useState("");
 
@@ -76,12 +80,12 @@ export default function ExamsPage() {
 
     try {
       await deleteExam(deleteTarget.id);
-      toast.success("آزمون با موفقیت حذف شد.");
+      toast.success(tl("examDeletedSuccessfully"));
       setDeleteTarget(null);
       reload();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "حذف آزمون ناموفق بود.",
+        error instanceof Error ? error.message : tl("couldnTDeleteTheExam"),
       );
     }
   }
@@ -104,17 +108,17 @@ export default function ExamsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">
-            مدیریت آزمون‌ها
+            {tl("examManagement")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            تعریف و مدیریت آزمون‌ها، نوبت برگزاری و بازه‌های ثبت‌نام.
+            {tl("defineAndManageExamsTheir")}
           </p>
         </div>
 
         <Can controller="Exams" action="Create">
           <Button onClick={openCreate}>
             <Plus className="size-4" />
-            تعریف آزمون جدید
+            {tl("defineNewExam")}
           </Button>
         </Can>
       </div>
@@ -122,7 +126,7 @@ export default function ExamsPage() {
       <section className="space-y-4 rounded-lg border bg-card p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Search className="size-4 text-muted-foreground" />
-          جست‌وجو و فیلتر
+          {tl("searchAndFilters")}
         </div>
 
         <form
@@ -131,15 +135,15 @@ export default function ExamsPage() {
         >
           <FormField
             id="exam-search"
-            label="عنوان آزمون"
-            placeholder="جست‌وجوی عنوان"
+            label={tl("examTitle")}
+            placeholder={tl("searchByTitle")}
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
           />
 
           <div className="flex flex-col gap-2">
             <label htmlFor="exam-session-filter" className="text-sm font-medium">
-              نوبت برگزاری
+              {tl("examSession")}
             </label>
             <select
               id="exam-session-filter"
@@ -152,7 +156,7 @@ export default function ExamsPage() {
               }
               className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
             >
-              <option value="">همه نوبت‌ها</option>
+              <option value="">{tl("allSessions")}</option>
               {(sessions ?? []).map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.title}
@@ -163,7 +167,7 @@ export default function ExamsPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="exam-type-filter" className="text-sm font-medium">
-              نوع آزمون
+              {tl("examType")}
             </label>
             <select
               id="exam-type-filter"
@@ -178,7 +182,7 @@ export default function ExamsPage() {
               }
               className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
             >
-              <option value="">همه انواع</option>
+              <option value="">{tl("allTypes")}</option>
               {(options?.examTypes ?? []).map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.title}
@@ -189,7 +193,7 @@ export default function ExamsPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="exam-status-filter" className="text-sm font-medium">
-              وضعیت
+              {tl("status")}
             </label>
             <select
               id="exam-status-filter"
@@ -211,16 +215,16 @@ export default function ExamsPage() {
               }
               className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
             >
-              <option value="">همه وضعیت‌ها</option>
-              <option value="active">فعال</option>
-              <option value="inactive">غیرفعال</option>
+              <option value="">{tl("allStatuses")}</option>
+              <option value="active">{tl("active")}</option>
+              <option value="inactive">{tl("inactive")}</option>
             </select>
           </div>
 
           <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
             <Button type="submit">
               <Search className="size-4" />
-              جست‌وجو
+              {tl("search")}
             </Button>
             <Button
               type="button"
@@ -230,7 +234,7 @@ export default function ExamsPage() {
                 setFilters({});
               }}
             >
-              پاک‌کردن فیلترها
+              {tl("clearFilters")}
             </Button>
           </div>
         </form>
@@ -240,15 +244,15 @@ export default function ExamsPage() {
         <div className="rounded-lg border bg-card px-4 py-16 text-center">
           <div className="mx-auto mb-3 size-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           <p className="text-sm text-muted-foreground">
-            در حال دریافت آزمون‌ها...
+            {tl("loadingExams")}
           </p>
         </div>
       )}
 
       {!loading && failed && (
         <ErrorState
-          title="دریافت آزمون‌ها ناموفق بود"
-          description="ارتباط با سرور برقرار نشد."
+          title={tl("couldnTLoadTheExams")}
+          description={tl("couldnTReachTheServer")}
           onRetry={reload}
         />
       )}
@@ -259,14 +263,14 @@ export default function ExamsPage() {
             <table className="w-full min-w-[900px] text-sm">
               <thead className="border-b bg-muted/40">
                 <tr className="text-right text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">عنوان آزمون</th>
-                  <th className="px-4 py-3 font-medium">نوبت</th>
-                  <th className="px-4 py-3 font-medium">نوع آزمون</th>
-                  <th className="px-4 py-3 font-medium">نحوه برگزاری</th>
-                  <th className="px-4 py-3 font-medium">شروع ثبت‌نام</th>
-                  <th className="px-4 py-3 font-medium">پایان ثبت‌نام</th>
-                  <th className="px-4 py-3 font-medium">وضعیت</th>
-                  <th className="px-4 py-3 text-center font-medium">عملیات</th>
+                  <th className="px-4 py-3 font-medium">{tl("examTitle")}</th>
+                  <th className="px-4 py-3 font-medium">{tl("session")}</th>
+                  <th className="px-4 py-3 font-medium">{tl("examType")}</th>
+                  <th className="px-4 py-3 font-medium">{tl("deliveryMode")}</th>
+                  <th className="px-4 py-3 font-medium">{tl("registrationStart")}</th>
+                  <th className="px-4 py-3 font-medium">{tl("registrationEnd")}</th>
+                  <th className="px-4 py-3 font-medium">{tl("status")}</th>
+                  <th className="px-4 py-3 text-center font-medium">{tl("actions")}</th>
                 </tr>
               </thead>
 
@@ -278,19 +282,19 @@ export default function ExamsPage() {
                     <td className="px-4 py-3">{exam.examTypeTitle || "—"}</td>
                     <td className="px-4 py-3">{exam.examModeTitle || "—"}</td>
                     <td className="px-4 py-3">
-                      {new Date(exam.registrationStartDate).toLocaleDateString("fa-IR")}
+                      {date(new Date(exam.registrationStartDate))}
                     </td>
                     <td className="px-4 py-3">
-                      {new Date(exam.registrationEndDate).toLocaleDateString("fa-IR")}
+                      {date(new Date(exam.registrationEndDate))}
                     </td>
                     <td className="px-4 py-3">
                       {exam.isActive ? (
                         <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs text-success">
-                          فعال
+                          {tl("active")}
                         </span>
                       ) : (
                         <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
-                          غیرفعال
+                          {tl("inactive")}
                         </span>
                       )}
                     </td>
@@ -301,7 +305,7 @@ export default function ExamsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8"
-                            title="ویرایش"
+                            title={tl("edit")}
                             onClick={() => openEdit(exam)}
                           >
                             <Pencil className="size-4" />
@@ -312,7 +316,7 @@ export default function ExamsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 text-destructive"
-                            title="حذف"
+                            title={tl("delete")}
                             onClick={() => setDeleteTarget(exam)}
                           >
                             <Trash2 className="size-4" />
@@ -331,13 +335,13 @@ export default function ExamsPage() {
       {!loading && !failed && exams?.length === 0 && (
         <EmptyState
           icon={<ClipboardList className="size-5" />}
-          title="آزمونی ثبت نشده است"
-          description="برای شروع، آزمون جدید تعریف کنید."
+          title={tl("noExamsYet")}
+          description={tl("defineANewExamTo")}
           action={
             <Can controller="Exams" action="Create">
               <Button onClick={openCreate}>
                 <Plus className="size-4" />
-                تعریف آزمون جدید
+                {tl("defineNewExam")}
               </Button>
             </Can>
           }
@@ -359,13 +363,13 @@ export default function ExamsPage() {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="حذف آزمون"
+        title={tl("deleteExam")}
         description={
           deleteTarget
-            ? `آیا از حذف آزمون «${deleteTarget.title}» مطمئن هستید؟ در صورت وجود ظرفیت یا ثبت‌نام، امکان حذف وجود ندارد.`
+            ? tl("areYouSureYouWant", { p0: deleteTarget.title })
             : ""
         }
-        confirmLabel="حذف آزمون"
+        confirmLabel={tl("deleteExam")}
         onConfirm={handleDelete}
       />
     </div>

@@ -60,7 +60,7 @@ export default async function AuthLayout({
     name: t("appName"),
     companyName: t("company"),
     company: (chunks) => (
-      <span className="text-destructive font-semibold">
+      <span className="font-semibold text-red-500 hover:text-red-400 cursor-pointer">
         {chunks}
       </span>
     ),

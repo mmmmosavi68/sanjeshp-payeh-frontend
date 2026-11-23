@@ -15,8 +15,10 @@ import type { CodeDto } from "@/features/codes/types";
 
 import { CodesTree } from "@/features/codes/components/codes-tree";
 import { CodeFormSheet } from "@/features/codes/components/code-form-sheet";
+import { useTranslations } from "next-intl";
 
 export default function CodesPage() {
+  const tl = useTranslations("screens.codes.page");
   const {
     data,
     loading,
@@ -73,8 +75,8 @@ const root = codes.find(
 
     toast.success(
       deleteTarget.subCode === 0
-        ? "گروه با موفقیت حذف شد."
-        : "آیتم با موفقیت حذف شد.",
+        ? tl("groupDeletedSuccessfully")
+        : tl("itemDeletedSuccessfully"),
     );
 
     setDeleteTarget(null);
@@ -86,11 +88,11 @@ const root = codes.find(
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">
-            مدیریت کدهای اطلاعات پایه
+            {tl("baseCodeManagement")}
           </h1>
 
           <p className="text-sm text-muted-foreground">
-            گروه‌ها و آیتم‌های اطلاعات پایه سامانه را مدیریت کنید.
+            {tl("manageTheSystemSBase")}
           </p>
         </div>
       </div>
@@ -100,23 +102,23 @@ const root = codes.find(
           <div className="mx-auto mb-3 size-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
 
           <p className="text-sm text-muted-foreground">
-            در حال دریافت اطلاعات کدها...
+            {tl("loadingCodes")}
           </p>
         </div>
       )}
 
       {!loading && failed && (
         <ErrorState
-          title="دریافت اطلاعات کدها ناموفق بود"
-          description="ارتباط با سرور برقرار نشد یا امکان دریافت اطلاعات وجود ندارد."
+          title={tl("couldnTLoadTheCodes")}
+          description={tl("couldnTReachTheServer")}
           onRetry={reload}
         />
       )}
 
       {!loading && !failed && !root && (
         <ErrorState
-          title="ساختار اصلی کدها پیدا نشد"
-          description="رکورد ریشه جدول Codes در اطلاعات دریافتی وجود ندارد."
+          title={tl("rootCodeStructureNotFound")}
+          description={tl("theRootRecordOfThe")}
           onRetry={reload}
         />
       )}
@@ -136,14 +138,14 @@ const root = codes.find(
       {!loading && !failed && root && groups.length === 0 && (
         <EmptyState
           icon={<Database className="size-5" />}
-          title="هنوز گروهی ثبت نشده است"
-          description="برای شروع، اولین گروه اطلاعات پایه را ایجاد کنید."
+          title={tl("noGroupsYet")}
+          description={tl("createTheFirstBaseInformation")}
           action={
             <Button
               onClick={handleCreateGroup}
             >
               <Plus className="size-4" />
-              ایجاد اولین گروه
+              {tl("createTheFirstGroup")}
             </Button>
           }
         />
@@ -168,15 +170,15 @@ const root = codes.find(
         }}
         title={
           deleteTarget?.subCode === 0
-            ? "حذف گروه"
-            : "حذف آیتم"
+            ? tl("deleteGroup")
+            : tl("deleteItem")
         }
         description={
           deleteTarget
-            ? `آیا از حذف «${deleteTarget.title}» اطمینان دارید؟ این عملیات قابل بازگشت نیست.`
+            ? tl("areYouSureYouWant", { p0: deleteTarget.title })
             : ""
         }
-        confirmLabel="حذف"
+        confirmLabel={tl("delete")}
         onConfirm={handleDelete}
       />
     </div>

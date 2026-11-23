@@ -24,6 +24,8 @@ import type {
 } from "../types";
 
 import type { ExamCodeOption } from "../options";
+import { useTranslations } from "next-intl";
+import { useFormatters } from "@/lib/format";
 
 type Props = {
   open: boolean;
@@ -79,6 +81,8 @@ export function ExamFormSheet({
   examModes,
   onSaved,
 }: Props) {
+  const { num, date } = useFormatters();
+  const tl = useTranslations("screens.exams.examFormSheet");
   const isEdit = exam !== null;
 
   const [values, setValues] = useState<FormValues>(emptyValues);
@@ -121,22 +125,22 @@ export function ExamFormSheet({
     setError(null);
 
     if (!values.title.trim()) {
-      setError("عنوان آزمون را وارد کنید.");
+      setError(tl("enterTheExamTitle"));
       return;
     }
 
     if (!values.examSessionId) {
-      setError("نوبت برگزاری آزمون را انتخاب کنید.");
+      setError(tl("selectTheExamSession"));
       return;
     }
 
     if (!values.examTypeId || !values.examModeId) {
-      setError("نوع آزمون و نحوه برگزاری را انتخاب کنید.");
+      setError(tl("selectTheExamTypeAnd"));
       return;
     }
 
     if (!values.registrationStartDate || !values.registrationEndDate) {
-      setError("تاریخ شروع و پایان ثبت‌نام الزامی است.");
+      setError(tl("registrationStartAndEndDates"));
       return;
     }
 
@@ -144,12 +148,12 @@ export function ExamFormSheet({
       new Date(values.registrationEndDate) <
       new Date(values.registrationStartDate)
     ) {
-      setError("پایان ثبت‌نام نمی‌تواند قبل از شروع آن باشد.");
+      setError(tl("registrationEndCanTBe"));
       return;
     }
 
     if (Boolean(values.editStartDate) !== Boolean(values.editEndDate)) {
-      setError("برای بازه ویرایش، هر دو تاریخ شروع و پایان را وارد کنید.");
+      setError(tl("forTheEditWindowEnter"));
       return;
     }
 
@@ -158,7 +162,7 @@ export function ExamFormSheet({
       values.editEndDate &&
       new Date(values.editEndDate) < new Date(values.editStartDate)
     ) {
-      setError("پایان ویرایش نمی‌تواند قبل از شروع آن باشد.");
+      setError(tl("editWindowEndCanT"));
       return;
     }
 
@@ -186,10 +190,10 @@ export function ExamFormSheet({
           ...payload,
           isActive: values.isActive,
         });
-        toast.success("آزمون با موفقیت ویرایش شد.");
+        toast.success(tl("examUpdatedSuccessfully"));
       } else {
         await createExam(payload);
-        toast.success("آزمون با موفقیت ثبت شد.");
+        toast.success(tl("examCreatedSuccessfully"));
       }
 
       onOpenChange(false);
@@ -198,7 +202,7 @@ export function ExamFormSheet({
       setError(
         exception instanceof Error
           ? exception.message
-          : "ذخیره آزمون ناموفق بود.",
+          : tl("couldnTSaveTheExam"),
       );
     } finally {
       setSubmitting(false);
@@ -213,10 +217,10 @@ export function ExamFormSheet({
       <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-xl">
         <SheetHeader className="border-b px-4 py-3 pe-14">
           <SheetTitle>
-            {isEdit ? "ویرایش آزمون" : "تعریف آزمون جدید"}
+            {isEdit ? tl("editExam") : tl("defineNewExam")}
           </SheetTitle>
           <SheetDescription>
-            اطلاعات آزمون و بازه‌های ثبت‌نام را مشخص کنید.
+            {tl("specifyTheExamDetailsAnd")}
           </SheetDescription>
         </SheetHeader>
 
@@ -237,23 +241,23 @@ export function ExamFormSheet({
 
             {!sessionOptionsReady && (
               <div className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm">
-                ابتدا حداقل یک نوبت آزمون در بخش مدیریت نوبت‌ها ثبت کنید.
+                {tl("firstCreateAtLeastOne")}
               </div>
             )}
 
             {!codeOptionsReady && (
               <div className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm">
-                گروه‌های «نوع آزمون» و «نحوه برگزاری» باید در اطلاعات پایه تعریف شده باشند.
+                {tl("theExamTypeAndDelivery")}
               </div>
             )}
 
             <section className="space-y-4">
-              <h3 className="text-sm font-semibold">اطلاعات اصلی</h3>
+              <h3 className="text-sm font-semibold">{tl("mainInformation")}</h3>
 
               <FormField
                 id="exam-title"
-                label="عنوان آزمون"
-                placeholder="عنوان آزمون را وارد کنید"
+                label={tl("examTitle")}
+                placeholder={tl("enterTheExamTitle2")}
                 maxLength={200}
                 value={values.title}
                 onChange={(event) => setField("title", event.target.value)}
@@ -262,7 +266,7 @@ export function ExamFormSheet({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2">
                   <label htmlFor="exam-session" className="text-sm font-medium">
-                    نوبت برگزاری
+                    {tl("examSession")}
                   </label>
                   <select
                     id="exam-session"
@@ -270,10 +274,10 @@ export function ExamFormSheet({
                     onChange={(event) => setField("examSessionId", event.target.value)}
                     className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
                   >
-                    <option value="">انتخاب نوبت</option>
+                    <option value="">{tl("selectASession")}</option>
                     {sessions.map((item) => (
                       <option key={item.id} value={item.id}>
-                        {item.title} - {new Date(item.examDate).toLocaleDateString("fa-IR")}
+                        {item.title} - {date(new Date(item.examDate))}
                       </option>
                     ))}
                   </select>
@@ -281,7 +285,7 @@ export function ExamFormSheet({
 
                 <div className="flex flex-col gap-2">
                   <label htmlFor="exam-type" className="text-sm font-medium">
-                    نوع آزمون
+                    {tl("examType")}
                   </label>
                   <select
                     id="exam-type"
@@ -289,7 +293,7 @@ export function ExamFormSheet({
                     onChange={(event) => setField("examTypeId", Number(event.target.value))}
                     className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
                   >
-                    <option value={0}>انتخاب نوع آزمون</option>
+                    <option value={0}>{tl("selectExamType")}</option>
                     {examTypes.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.title}
@@ -300,7 +304,7 @@ export function ExamFormSheet({
 
                 <div className="flex flex-col gap-2 sm:col-span-2">
                   <label htmlFor="exam-mode" className="text-sm font-medium">
-                    نحوه برگزاری
+                    {tl("deliveryMode")}
                   </label>
                   <select
                     id="exam-mode"
@@ -308,7 +312,7 @@ export function ExamFormSheet({
                     onChange={(event) => setField("examModeId", Number(event.target.value))}
                     className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
                   >
-                    <option value={0}>انتخاب نحوه برگزاری</option>
+                    <option value={0}>{tl("selectDeliveryMode")}</option>
                     {examModes.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.title}
@@ -320,12 +324,12 @@ export function ExamFormSheet({
             </section>
 
             <section className="space-y-4 border-t pt-5">
-              <h3 className="text-sm font-semibold">بازه ثبت‌نام</h3>
+              <h3 className="text-sm font-semibold">{tl("registrationWindow")}</h3>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   id="registration-start"
-                  label="شروع ثبت‌نام"
+                  label={tl("registrationStart")}
                   type="datetime-local"
                   value={values.registrationStartDate}
                   onChange={(event) => setField("registrationStartDate", event.target.value)}
@@ -333,7 +337,7 @@ export function ExamFormSheet({
 
                 <FormField
                   id="registration-end"
-                  label="پایان ثبت‌نام"
+                  label={tl("registrationEnd")}
                   type="datetime-local"
                   value={values.registrationEndDate}
                   onChange={(event) => setField("registrationEndDate", event.target.value)}
@@ -342,12 +346,12 @@ export function ExamFormSheet({
             </section>
 
             <section className="space-y-4 border-t pt-5">
-              <h3 className="text-sm font-semibold">بازه ویرایش اطلاعات (اختیاری)</h3>
+              <h3 className="text-sm font-semibold">{tl("informationEditWindowOptional")}</h3>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   id="edit-start"
-                  label="شروع ویرایش"
+                  label={tl("editWindowStart")}
                   type="datetime-local"
                   value={values.editStartDate}
                   onChange={(event) => setField("editStartDate", event.target.value)}
@@ -355,7 +359,7 @@ export function ExamFormSheet({
 
                 <FormField
                   id="edit-end"
-                  label="پایان ویرایش"
+                  label={tl("editWindowEnd")}
                   type="datetime-local"
                   value={values.editEndDate}
                   onChange={(event) => setField("editEndDate", event.target.value)}
@@ -364,13 +368,13 @@ export function ExamFormSheet({
             </section>
 
             <section className="space-y-3 border-t pt-5">
-              <h3 className="text-sm font-semibold">توضیحات</h3>
+              <h3 className="text-sm font-semibold">{tl("description")}</h3>
               <textarea
                 value={values.description}
                 onChange={(event) => setField("description", event.target.value)}
                 maxLength={1000}
                 rows={3}
-                placeholder="توضیحات تکمیلی آزمون..."
+                placeholder={tl("additionalExamDescription")}
                 className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
 
@@ -382,7 +386,7 @@ export function ExamFormSheet({
                     onChange={(event) => setField("isActive", event.target.checked)}
                     className="size-4 accent-primary"
                   />
-                  آزمون فعال باشد
+                  {tl("thisExamIsActive")}
                 </label>
               )}
             </section>
@@ -396,7 +400,7 @@ export function ExamFormSheet({
                 disabled={submitting}
                 onClick={() => onOpenChange(false)}
               >
-                انصراف
+                {tl("cancel")}
               </Button>
 
               <Button
@@ -408,7 +412,7 @@ export function ExamFormSheet({
                 }
               >
                 {submitting && <Loader2 className="size-4 animate-spin" />}
-                {isEdit ? "ذخیره تغییرات" : "ثبت آزمون"}
+                {isEdit ? tl("saveChanges") : tl("createExam")}
               </Button>
             </div>
           </SheetFooter>

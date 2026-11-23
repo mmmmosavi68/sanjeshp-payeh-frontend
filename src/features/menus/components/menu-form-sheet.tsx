@@ -31,6 +31,7 @@ import {
   type MenuFormInput,
   type MenuFormValues,
 } from "../schemas/menu-schema";
+import { useTranslations } from "next-intl";
 
 type MenuFormSheetProps = {
   open: boolean;
@@ -134,6 +135,7 @@ export function MenuFormSheet({
   onSaved,
   defaultParentId = null,
 }: MenuFormSheetProps) {
+  const tl = useTranslations("screens.menus.menuFormSheet");
   const isEdit = Boolean(menu);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -213,10 +215,10 @@ useEffect(() => {
     try {
       if (menu) {
         await updateMenu(menu.id, payload);
-        toast.success("منو با موفقیت ویرایش شد.");
+        toast.success(tl("menuUpdatedSuccessfully"));
       } else {
         await createMenu(payload);
-        toast.success("منو با موفقیت ایجاد شد.");
+        toast.success(tl("menuCreatedSuccessfully"));
       }
 
       onOpenChange(false);
@@ -225,7 +227,7 @@ useEffect(() => {
       const message =
         error instanceof Error
           ? error.message
-          : "عملیات ذخیره منو با خطا مواجه شد.";
+          : tl("couldnTSaveTheMenu");
 
       setFormError(message);
     }
@@ -239,12 +241,12 @@ useEffect(() => {
       >
         <SheetHeader className="border-b px-4 py-3 pe-14">
           <SheetTitle>
-            {isEdit ? "ویرایش منو" : "افزودن منو"}
+            {isEdit ? tl("editMenu") : tl("addMenu")}
           </SheetTitle>
           <SheetDescription>
             {isEdit
-              ? "اطلاعات و تنظیمات منو را ویرایش کنید."
-              : "اطلاعات منوی جدید را وارد کنید."}
+              ? tl("editTheMenuDetailsAnd")
+              : tl("enterTheDetailsOfThe")}
           </SheetDescription>
         </SheetHeader>
 
@@ -266,26 +268,26 @@ useEffect(() => {
             {/* اطلاعات اصلی */}
             <section className="space-y-4">
               <h3 className="text-sm font-semibold">
-                اطلاعات اصلی
+                {tl("mainInformation")}
               </h3>
 
               <FormField
                 id="menu-title"
-                label="عنوان منو"
-                placeholder="مثلاً مدیریت کاربران"
+                label={tl("menuTitle")}
+                placeholder={tl("eGUserManagement")}
                 maxLength={100}
                 error={errors.menuTitle?.message}
                 {...register("menuTitle")}
               />
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="menu-parent">منوی والد</Label>
+                <Label htmlFor="menu-parent">{tl("parentMenu")}</Label>
                 <select
                   id="menu-parent"
                   className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                   {...register("parentId")}
                 >
-                  <option value="">بدون والد (منوی اصلی)</option>
+                  <option value="">{tl("noParentTopLevelMenu")}</option>
                   {parentOptions.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.title}
@@ -301,10 +303,10 @@ useEffect(() => {
 
               <FormField
                 id="menu-page-code"
-                label="ترتیب نمایش (PageCode)"
+                label={tl("displayOrderPagecode")}
                 type="number"
                 inputMode="numeric"
-                placeholder="مثلاً 1"
+                placeholder={tl("eG1")}
                 error={errors.pageCode?.message}
                 {...register("pageCode")}
               />
@@ -315,7 +317,7 @@ useEffect(() => {
             {/* اطلاعات مسیر و دسترسی */}
             <section className="space-y-4">
               <h3 className="text-sm font-semibold">
-                مسیر و دسترسی
+                {tl("pathAndAccess")}
               </h3>
 
               <FormField
@@ -371,9 +373,7 @@ useEffect(() => {
               </div>
 
               <p className="text-xs leading-6 text-muted-foreground">
-                برای منوهای ساختاری، ControllerName و ActionName را خالی
-                بگذارید. برای تعریف دسترسی یک عملیات، هر دو مقدار را
-                مشخص کنید.
+                {tl("forStructuralMenusLeaveControllername")}
               </p>
             </section>
 
@@ -382,7 +382,7 @@ useEffect(() => {
             {/* تنظیمات نمایش */}
             <section className="space-y-4">
               <h3 className="text-sm font-semibold">
-                تنظیمات نمایش
+                {tl("displaySettings")}
               </h3>
 
               <FormField
@@ -418,7 +418,7 @@ useEffect(() => {
                       }
                     />
                     <Label htmlFor="menu-show" className="font-normal">
-                      نمایش در منوی سامانه
+                      {tl("showInTheSystemMenu")}
                     </Label>
                   </div>
                 )}
@@ -437,7 +437,7 @@ useEffect(() => {
                       }
                     />
                     <Label htmlFor="menu-active" className="font-normal">
-                      منو فعال باشد
+                      {tl("thisMenuIsActive")}
                     </Label>
                   </div>
                 )}
@@ -453,7 +453,7 @@ useEffect(() => {
                 disabled={isSubmitting}
                 onClick={() => onOpenChange(false)}
               >
-                انصراف
+                {tl("cancel")}
               </Button>
 
               <Button
@@ -463,7 +463,7 @@ useEffect(() => {
                 {isSubmitting && (
                   <Loader2 className="size-4 animate-spin" />
                 )}
-                {isEdit ? "ذخیره تغییرات" : "ایجاد منو"}
+                {isEdit ? tl("saveChanges") : tl("createMenu")}
               </Button>
             </div>
           </SheetFooter>

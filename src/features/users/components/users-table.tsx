@@ -353,9 +353,7 @@ export function UsersTable() {
       setFormOpen(true);
     } catch {
       toast.error(
-        locale === "fa"
-          ? "دریافت جزئیات کاربر ناموفق بود."
-          : "Could not load user details.",
+        t("errors.loadDetails"),
       );
     }
   }
@@ -562,11 +560,11 @@ export function UsersTable() {
                   </TableHead>
 
                   <TableHead className="text-right">
-                    {locale === "fa" ? "نام کاربری" : "Username"}
+                    {t("form.username")}
                   </TableHead>
 
                   <TableHead className="text-right">
-                    {locale === "fa" ? "کد ملی" : "National Code"}
+                    {t("form.nationalCode")}
                   </TableHead>
 
                   <TableHead className="text-right">
@@ -802,7 +800,7 @@ export function UsersTable() {
                     <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-3">
                       <div className="min-w-0">
                         <p className="text-xs text-muted-foreground">
-                          {locale === "fa" ? "نام کاربری" : "Username"}
+                          {t("form.username")}
                         </p>
                         <p
                           dir="ltr"
@@ -814,7 +812,7 @@ export function UsersTable() {
 
                       <div className="min-w-0">
                         <p className="text-xs text-muted-foreground">
-                          {locale === "fa" ? "کد ملی" : "National Code"}
+                          {t("form.nationalCode")}
                         </p>
                         <p
                           dir="ltr"

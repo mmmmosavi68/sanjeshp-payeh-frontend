@@ -30,8 +30,12 @@ import type {
 
 import { UniversitiesTable } from "@/features/universities/components/universities-table";
 import { UniversityFormSheet } from "@/features/universities/components/university-form-sheet";
+import { useTranslations } from "next-intl";
+import { useFormatters } from "@/lib/format";
 
 export default function UniversitiesPage() {
+  const { num, date } = useFormatters();
+  const tl = useTranslations("screens.universities.page");
   const [filters, setFilters] = useState<UniversityFilters>({});
   const [searchText, setSearchText] = useState("");
 
@@ -124,7 +128,7 @@ export default function UniversitiesPage() {
 
     await deleteUniversity(deleteTarget.id);
 
-    toast.success("دانشگاه با موفقیت حذف شد.");
+    toast.success(tl("universityDeletedSuccessfully"));
 
     setDeleteTarget(null);
     reload();
@@ -141,11 +145,11 @@ export default function UniversitiesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">
-            مدیریت دانشگاه‌ها
+            {tl("universityManagement")}
           </h1>
 
           <p className="text-sm text-muted-foreground">
-            اطلاعات دانشگاه‌ها، ظرفیت مصوب و ساختار دانشگاه‌های مادر و زیرمجموعه را مدیریت کنید.
+            {tl("manageUniversitiesApprovedCapacityAnd")}
           </p>
         </div>
 
@@ -155,7 +159,7 @@ export default function UniversitiesPage() {
             className="w-full rounded-full sm:w-auto"
           >
             <Plus className="size-4" />
-            افزودن دانشگاه
+            {tl("addUniversity")}
           </Button>
         </Can>
       </div>
@@ -163,7 +167,7 @@ export default function UniversitiesPage() {
       <section className="space-y-4 rounded-lg border bg-card p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Search className="size-4 text-muted-foreground" />
-          جست‌وجو و فیلتر
+          {tl("searchAndFilters")}
         </div>
 
         <form
@@ -172,15 +176,15 @@ export default function UniversitiesPage() {
         >
           <FormField
             id="university-search"
-            label="نام دانشگاه"
-            placeholder="جست‌وجوی نام دانشگاه"
+            label={tl("universityName")}
+            placeholder={tl("searchByUniversityName")}
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
           />
 
           <div className="flex flex-col gap-2">
             <label htmlFor="filter-university-type" className="text-sm font-medium">
-              نوع دانشگاه
+              {tl("universityType")}
             </label>
 
             <select
@@ -190,7 +194,7 @@ export default function UniversitiesPage() {
               disabled={codesLoading}
               className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <option value="">همه انواع</option>
+              <option value="">{tl("allTypes")}</option>
 
               {universityTypes.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -202,7 +206,7 @@ export default function UniversitiesPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="filter-university-region" className="text-sm font-medium">
-              منطقه
+              {tl("region")}
             </label>
 
             <select
@@ -211,12 +215,12 @@ export default function UniversitiesPage() {
               onChange={(event) => handleRegionChange(event.target.value)}
               className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <option value="">همه مناطق</option>
+              <option value="">{tl("allRegions")}</option>
 
               {Array.from({ length: 11 }, (_, index) => index + 1).map(
                 (region) => (
                   <option key={region} value={region}>
-                    منطقه {region}
+                    {tl("region")} {region}
                   </option>
                 ),
               )}
@@ -225,7 +229,7 @@ export default function UniversitiesPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="filter-university-parent" className="text-sm font-medium">
-              دانشگاه مادر
+              {tl("parentUniversity")}
             </label>
 
             <select
@@ -234,7 +238,7 @@ export default function UniversitiesPage() {
               onChange={(event) => handleParentChange(event.target.value)}
               className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <option value="">همه دانشگاه‌ها</option>
+              <option value="">{tl("allUniversities")}</option>
 
               {parentOptions.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -246,7 +250,7 @@ export default function UniversitiesPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="filter-university-status" className="text-sm font-medium">
-              وضعیت
+              {tl("status")}
             </label>
 
             <select
@@ -261,16 +265,16 @@ export default function UniversitiesPage() {
               onChange={(event) => handleStatusChange(event.target.value)}
               className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <option value="">همه وضعیت‌ها</option>
-              <option value="active">فعال</option>
-              <option value="inactive">غیرفعال</option>
+              <option value="">{tl("allStatuses")}</option>
+              <option value="active">{tl("active")}</option>
+              <option value="inactive">{tl("inactive")}</option>
             </select>
           </div>
 
           <div className="flex items-end gap-2">
             <Button type="submit">
               <Search className="size-4" />
-              جست‌وجو
+              {tl("search")}
             </Button>
 
             <Button
@@ -281,7 +285,7 @@ export default function UniversitiesPage() {
                 setFilters({});
               }}
             >
-              پاک‌کردن فیلترها
+              {tl("clearFilters")}
             </Button>
           </div>
         </form>
@@ -292,15 +296,15 @@ export default function UniversitiesPage() {
           <div className="mx-auto mb-3 size-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
 
           <p className="text-sm text-muted-foreground">
-            در حال دریافت اطلاعات دانشگاه‌ها...
+            {tl("loadingUniversities")}
           </p>
         </div>
       )}
 
       {!loading && failed && (
         <ErrorState
-          title="دریافت اطلاعات دانشگاه‌ها ناموفق بود"
-          description="ارتباط با سرور برقرار نشد یا امکان دریافت اطلاعات وجود ندارد."
+          title={tl("couldnTLoadTheUniversities")}
+          description={tl("couldnTReachTheServer")}
           onRetry={reload}
         />
       )}
@@ -309,9 +313,9 @@ export default function UniversitiesPage() {
         <>
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              تعداد نتایج:{" "}
+              {tl("results")}{" "}
               <span className="font-semibold text-foreground">
-                {universities.length.toLocaleString("fa-IR")}
+                {num(universities.length)}
               </span>
             </p>
           </div>
@@ -327,15 +331,15 @@ export default function UniversitiesPage() {
       {!loading && !failed && universities.length === 0 && (
         <EmptyState
           icon={<Building2 className="size-5" />}
-          title="دانشگاهی پیدا نشد"
-          description="با فیلترهای فعلی دانشگاهی وجود ندارد. می‌توانید فیلترها را تغییر دهید یا دانشگاه جدیدی ثبت کنید."
+          title={tl("noUniversitiesFound")}
+          description={tl("noUniversitiesMatchTheCurrent")}
           action={
             <Can controller="Universities" action="Create">
               <Button
                 onClick={handleCreate}
               >
                 <Plus className="size-4" />
-                ثبت دانشگاه جدید
+                {tl("addNewUniversity")}
               </Button>
             </Can>
           }
@@ -356,13 +360,13 @@ export default function UniversitiesPage() {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="حذف دانشگاه"
+        title={tl("deleteUniversity")}
         description={
           deleteTarget
-            ? `آیا از حذف «${deleteTarget.title}» اطمینان دارید؟ در صورت داشتن زیرمجموعه یا اطلاعات وابسته، Backend اجازه حذف نخواهد داد.`
+            ? tl("areYouSureYouWant", { p0: deleteTarget.title })
             : ""
         }
-        confirmLabel="حذف دانشگاه"
+        confirmLabel={tl("deleteUniversity")}
         onConfirm={handleDelete}
       />
     </div>

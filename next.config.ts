@@ -29,6 +29,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  compress: true,
+  images: { formats: ["image/avif", "image/webp"] },
+  experimental: {
+    // Tree-shake large icon/UI barrels so only the used exports reach the bundle.
+    optimizePackageImports: ["lucide-react", "radix-ui", "next-intl"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

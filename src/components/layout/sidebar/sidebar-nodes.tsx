@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -22,12 +23,12 @@ export type SidebarNodesProps = {
 /** درخت بازگشتیِ منو (گره‌های والد، لینک‌ها و دکمه‌ی علاقه‌مندی). */
 export function SidebarNodes(props: SidebarNodesProps) {
   const { nodes, depth = 0, collapsed, badges, menu } = props;
+  const t = useTranslations("shell.sidebar");
   const {
     pathname,
     search,
     expandedItems,
     favoriteIds,
-    locale,
     toggleExpanded,
     toggleFavorite,
     handleNavigate,
@@ -59,21 +60,21 @@ export function SidebarNodes(props: SidebarNodesProps) {
       const iconClass = cn(
         "size-4 shrink-0 transition-colors duration-150",
         selected
-          ? "text-foreground"
+          ? hasChildren ? "text-foreground" : "text-primary"
           : "text-muted-foreground/80",
       );
 
       const rowClass = cn(
-        "flex min-h-(--density-control) w-full min-w-0 items-center gap-2.5 rounded-md border text-sm",
+        "relative flex min-h-(--density-control) w-full min-w-0 items-center gap-2.5 rounded-lg text-sm",
         collapsed && "justify-center px-0",
-        "transition-all duration-150 ease-in-out",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-        "hover:bg-accent/70 hover:text-foreground",
+        "transition-colors duration-150 ease-out",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+        "hover:bg-accent hover:text-foreground",
         selected
           ? hasChildren
-            ? "border-transparent bg-accent/60 font-medium text-foreground"
-            : "border-border/70 bg-accent font-medium text-foreground shadow-sm"
-          : "border-transparent text-muted-foreground",
+            ? "font-medium text-foreground"
+            : "bg-primary/10 font-semibold text-primary before:absolute before:inset-y-1.5 before:start-0 before:w-[3px] before:rounded-full before:bg-primary"
+          : "text-muted-foreground",
       );
 
       return (
@@ -177,33 +178,23 @@ export function SidebarNodes(props: SidebarNodesProps) {
                 onClick={() => toggleFavorite(node.id)}
                 title={
                   favoriteLimitReached
-                    ? locale === "fa"
-                      ? "حداکثر ۸ علاقه‌مندی مجاز است"
-                      : "Maximum 8 favorites allowed"
+                    ? t("favoriteLimit")
                     : isFavorite
-                      ? locale === "fa"
-                        ? "حذف از علاقه‌مندی‌ها"
-                        : "Remove from favorites"
-                      : locale === "fa"
-                        ? "افزودن به علاقه‌مندی‌ها"
-                        : "Add to favorites"
+                      ? t("removeFavorite")
+                      : t("addFavorite")
                 }
                 aria-label={
                   isFavorite
-                    ? locale === "fa"
-                      ? `حذف ${label} از علاقه‌مندی‌ها`
-                      : `Remove ${label} from favorites`
-                    : locale === "fa"
-                      ? `افزودن ${label} به علاقه‌مندی‌ها`
-                      : `Add ${label} to favorites`
+                    ? t("removeFavoriteNamed", { label })
+                    : t("addFavoriteNamed", { label })
                 }
                 aria-pressed={isFavorite}
                 className={cn(
-                  "grid size-8 shrink-0 place-items-center rounded-lg transition-colors",
+                  "grid size-8 shrink-0 place-items-center rounded-lg transition-colors cursor-pointer",
                   "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                   isFavorite
-                    ? "text-warning"
-                    : "text-muted-foreground/50 hover:text-warning",
+                    ? "text-amber-500"
+                    : "text-muted-foreground/50 hover:text-amber-500",
                   favoriteLimitReached &&
                     "cursor-not-allowed opacity-30 hover:bg-transparent hover:text-muted-foreground/50",
                 )}

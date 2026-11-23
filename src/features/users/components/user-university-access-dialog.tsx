@@ -36,6 +36,7 @@ type Props = {
 };
 
 export function UserUniversityAccessAction({ user }: Props) {
+  const tl = useTranslations("screens.users.userUniversityAccessDialog");
   const tc = useTranslations("common");
 
   const updatePermission = usePermission(
@@ -90,7 +91,7 @@ export function UserUniversityAccessAction({ user }: Props) {
       } catch {
         if (!cancelled) {
           setFailed(true);
-          toast.error("دریافت اطلاعات دانشگاه‌ها ناموفق بود.");
+          toast.error(tl("couldnTLoadTheUniversities"));
         }
       } finally {
         if (!cancelled) {
@@ -166,10 +167,10 @@ export function UserUniversityAccessAction({ user }: Props) {
         Array.from(selectedIds),
       );
 
-      toast.success("دسترسی دانشگاه‌های کاربر با موفقیت ذخیره شد.");
+      toast.success(tl("userUniversityAccessSavedSuccessfully"));
       setOpen(false);
     } catch {
-      toast.error("ذخیره دسترسی دانشگاه‌ها ناموفق بود.");
+      toast.error(tl("couldnTSaveTheUniversity"));
     } finally {
       setSaving(false);
     }
@@ -206,8 +207,8 @@ export function UserUniversityAccessAction({ user }: Props) {
         type="button"
         variant="ghost"
         size="icon-sm"
-        title="تخصیص دانشگاه‌ها"
-        aria-label="تخصیص دانشگاه‌ها"
+        title={tl("assignUniversities")}
+        aria-label={tl("assignUniversities")}
         onClick={() => setOpen(true)}
       >
         <Building2 className="size-4" aria-hidden />
@@ -218,11 +219,11 @@ export function UserUniversityAccessAction({ user }: Props) {
           <DialogHeader className="shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <ShieldCheck className="size-5" aria-hidden />
-              تخصیص دانشگاه‌ها
+              {tl("assignUniversities")}
             </DialogTitle>
 
             <DialogDescription>
-              تعیین دانشگاه‌های قابل دسترس برای {fullName}
+              {tl("chooseTheUniversitiesAccessibleTo")} {fullName}
             </DialogDescription>
           </DialogHeader>
 
@@ -236,7 +237,7 @@ export function UserUniversityAccessAction({ user }: Props) {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="جست‌وجوی دانشگاه..."
+                placeholder={tl("searchUniversities")}
                 className="h-9 ps-9"
                 maxLength={100}
                 disabled={loading || failed}
@@ -245,7 +246,7 @@ export function UserUniversityAccessAction({ user }: Props) {
 
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
               <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary tabular-nums">
-                {selectedIds.size} دانشگاه انتخاب‌شده
+                {selectedIds.size} {tl("selectedUniversity")}
               </span>
 
               <div className="flex flex-wrap gap-1">
@@ -256,7 +257,7 @@ export function UserUniversityAccessAction({ user }: Props) {
                   onClick={selectAll}
                   disabled={loading || failed || universities.length === 0}
                 >
-                  انتخاب همه
+                  {tl("selectAll")}
                 </Button>
 
                 <Button
@@ -266,7 +267,7 @@ export function UserUniversityAccessAction({ user }: Props) {
                   onClick={clearSelection}
                   disabled={loading || failed || selectedIds.size === 0}
                 >
-                  پاک کردن انتخاب
+                  {tl("clearSelection")}
                 </Button>
               </div>
             </div>
@@ -275,12 +276,12 @@ export function UserUniversityAccessAction({ user }: Props) {
               {loading ? (
                 <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="size-5 animate-spin" />
-                  در حال دریافت دانشگاه‌ها...
+                  {tl("loadingUniversities")}
                 </div>
               ) : failed ? (
                 <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center">
                   <p className="text-sm text-destructive">
-                    دریافت اطلاعات دانشگاه‌ها ناموفق بود.
+                    {tl("couldnTLoadTheUniversities")}
                   </p>
 
                   <Button
@@ -289,7 +290,7 @@ export function UserUniversityAccessAction({ user }: Props) {
                     size="sm"
                     onClick={retry}
                   >
-                    تلاش مجدد
+                    {tl("tryAgain")}
                   </Button>
                 </div>
               ) : filteredUniversities.length > 0 ? (
@@ -320,8 +321,8 @@ export function UserUniversityAccessAction({ user }: Props) {
               ) : (
                 <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
                   {search
-                    ? "دانشگاهی با این عبارت پیدا نشد."
-                    : "دانشگاهی برای تخصیص وجود ندارد."}
+                    ? tl("noUniversitiesMatchYourSearch")
+                    : tl("thereAreNoUniversitiesTo")}
                 </div>
               )}
             </div>

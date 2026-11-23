@@ -36,6 +36,7 @@ import {
 
 import type { GroupDto, GroupMemberDto } from "../types";
 import type { UserRecord } from "@/types/user";
+import { useTranslations } from "next-intl";
 
 type GroupMembersDialogProps = {
   open: boolean;
@@ -60,6 +61,7 @@ export function GroupMembersDialog({
   onOpenChange,
   group,
 }: GroupMembersDialogProps) {
+  const tl = useTranslations("screens.groups.groupMembersDialog");
   const [members, setMembers] = useState<GroupMemberDto[]>([]);
 
   const [membersLoading, setMembersLoading] = useState(false);
@@ -281,7 +283,7 @@ export function GroupMembersDialog({
       await addGroupMembers(groupId, idsToAdd);
 
       toast.success(
-        `${idsToAdd.length} کاربر با موفقیت به گروه اضافه شدند.`,
+        tl("otherAddedToTheGroup", { p0: idsToAdd.length }),
       );
 
       setAddDialogOpen(false);
@@ -294,7 +296,7 @@ export function GroupMembersDialog({
       toast.error(
         error instanceof Error
           ? error.message
-          : "افزودن کاربران انتخاب‌شده ناموفق بود.",
+          : tl("couldnTAddTheSelected"),
       );
     } finally {
       setAdding(false);
@@ -318,7 +320,7 @@ export function GroupMembersDialog({
       await removeGroupMembers(groupId, idsToRemove);
 
       toast.success(
-        `${idsToRemove.length} عضو با موفقیت از گروه حذف شدند.`,
+        tl("otherRemovedFromTheGroup", { p0: idsToRemove.length }),
       );
 
       setSelectedMemberIds(new Set());
@@ -329,7 +331,7 @@ export function GroupMembersDialog({
       toast.error(
         error instanceof Error
           ? error.message
-          : "حذف اعضای انتخاب‌شده ناموفق بود.",
+          : tl("couldnTRemoveTheSelected"),
       );
     } finally {
       setRemoving(false);
@@ -373,11 +375,11 @@ export function GroupMembersDialog({
           <DialogHeader className="shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <Users className="size-5" aria-hidden />
-              مدیریت اعضای گروه
+              {tl("manageGroupMembers")}
             </DialogTitle>
 
             <DialogDescription>
-              مدیریت کاربران عضو گروه
+              {tl("manageTheUsersInThis")}
               {group ? ` «${group.groupName}»` : ""}.
             </DialogDescription>
           </DialogHeader>
@@ -387,17 +389,17 @@ export function GroupMembersDialog({
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold">
-                  اعضای فعلی گروه
+                  {tl("currentGroupMembers")}
                 </h3>
 
                 <p className="mt-1 text-xs text-muted-foreground">
-                  فهرست کاربران عضو این گروه
+                  {tl("usersWhoBelongToThis")}
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium tabular-nums">
-                  {members.length} عضو
+                  {members.length} {tl("member")}
                 </span>
 
                 <Button
@@ -407,7 +409,7 @@ export function GroupMembersDialog({
                   disabled={membersLoading || membersError || removing}
                 >
                   <UserPlus className="size-4" aria-hidden />
-                  افزودن عضو
+                  {tl("addMember")}
                 </Button>
               </div>
             </div>
@@ -422,16 +424,16 @@ export function GroupMembersDialog({
                     onChange={toggleSelectAllMembers}
                     disabled={removing}
                     className="size-4 cursor-pointer accent-primary"
-                    aria-label="انتخاب همه اعضا"
+                    aria-label={tl("selectAllMembers")}
                   />
 
-                  <span>انتخاب همه اعضا</span>
+                  <span>{tl("selectAllMembers")}</span>
                 </label>
 
                 <div className="flex items-center gap-2">
                   {selectedMemberCount > 0 ? (
                     <span className="text-xs font-medium text-muted-foreground tabular-nums">
-                      {selectedMemberCount} انتخاب‌شده
+                      {selectedMemberCount} {tl("selected")}
                     </span>
                   ) : null}
 
@@ -449,7 +451,7 @@ export function GroupMembersDialog({
                       <Trash2 className="size-4" />
                     )}
 
-                    حذف انتخاب‌شده‌ها
+                    {tl("removeSelected")}
                   </Button>
                 </div>
               </div>
@@ -460,12 +462,12 @@ export function GroupMembersDialog({
               {membersLoading ? (
                 <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
                   <Loader2 className="size-5 animate-spin" aria-hidden />
-                  در حال دریافت اعضای گروه...
+                  {tl("loadingGroupMembers")}
                 </div>
               ) : membersError ? (
                 <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
                   <p className="text-sm text-destructive">
-                    دریافت اعضای گروه ناموفق بود.
+                    {tl("couldnTLoadTheGroup")}
                   </p>
 
                   <Button
@@ -474,7 +476,7 @@ export function GroupMembersDialog({
                     size="sm"
                     onClick={reloadMembers}
                   >
-                    تلاش مجدد
+                    {tl("tryAgain")}
                   </Button>
                 </div>
               ) : members.length === 0 ? (
@@ -485,11 +487,11 @@ export function GroupMembersDialog({
 
                   <div>
                     <p className="text-sm font-medium">
-                      هنوز عضوی برای این گروه ثبت نشده است.
+                      {tl("thisGroupHasNoMembers")}
                     </p>
 
                     <p className="mt-1 text-xs text-muted-foreground">
-                      برای افزودن کاربران روی دکمه افزودن عضو کلیک کنید.
+                      {tl("clickAddMemberToAdd")}
                     </p>
                   </div>
 
@@ -499,7 +501,7 @@ export function GroupMembersDialog({
                     onClick={openAddDialog}
                   >
                     <Plus className="size-4" aria-hidden />
-                    افزودن اولین عضو
+                    {tl("addTheFirstMember")}
                   </Button>
                 </div>
               ) : (
@@ -520,7 +522,7 @@ export function GroupMembersDialog({
                           disabled={removing}
                           onChange={() => toggleMember(member.userId)}
                           className="size-4 shrink-0 cursor-pointer accent-primary"
-                          aria-label={`انتخاب ${memberName(member)}`}
+                          aria-label={tl("select", { p0: memberName(member) })}
                         />
 
                         <span className="grid size-10 shrink-0 place-items-center rounded-full border bg-muted text-muted-foreground">
@@ -550,7 +552,7 @@ export function GroupMembersDialog({
                               : "shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
                           }
                         >
-                          {member.isActive ? "فعال" : "غیرفعال"}
+                          {member.isActive ? tl("active") : tl("inactive")}
                         </span>
                       </div>
                     );
@@ -562,7 +564,7 @@ export function GroupMembersDialog({
             {selectedMemberCount > 0 ? (
               <div className="flex shrink-0 items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span>
-                  {selectedMemberCount} عضو برای حذف انتخاب شده است.
+                  {selectedMemberCount} {tl("otherSelectedForRemoval")}
                 </span>
 
                 <Button
@@ -573,7 +575,7 @@ export function GroupMembersDialog({
                   onClick={clearMemberSelection}
                   disabled={removing}
                 >
-                  پاک کردن انتخاب
+                  {tl("clearSelection")}
                 </Button>
               </div>
             ) : null}
@@ -590,12 +592,12 @@ export function GroupMembersDialog({
           <DialogHeader className="shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <UserPlus className="size-5" aria-hidden />
-              افزودن اعضای جدید
+              {tl("addNewMembers")}
             </DialogTitle>
 
             <DialogDescription>
-              کاربران موردنظر را جست‌وجو و انتخاب کنید.
-              {group ? ` گروه: ${group.groupName}` : ""}
+              {tl("searchForAndSelectThe")}
+              {group ? tl("group", { p0: group.groupName }) : ""}
             </DialogDescription>
           </DialogHeader>
 
@@ -609,7 +611,7 @@ export function GroupMembersDialog({
               <Input
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
-                placeholder="جست‌وجوی نام، نام کاربری یا شماره تماس..."
+                placeholder={tl("searchByNameUsernameOr")}
                 className="h-(--density-control) ps-9"
                 maxLength={100}
                 disabled={adding}
@@ -618,7 +620,7 @@ export function GroupMembersDialog({
 
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
               <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary tabular-nums">
-                {selectedUserCount} کاربر انتخاب‌شده
+                {selectedUserCount} {tl("selectedUser")}
               </span>
 
               <div className="flex items-center gap-1">
@@ -635,7 +637,7 @@ export function GroupMembersDialog({
                   }
                 >
                   <CheckCheck className="size-3.5" />
-                  {allVisibleUsersSelected ? "لغو انتخاب همه" : "انتخاب همه"}
+                  {allVisibleUsersSelected ? tl("deselectAll") : tl("selectAll")}
                 </Button>
 
                 <Button
@@ -647,7 +649,7 @@ export function GroupMembersDialog({
                   disabled={adding || selectedUserCount === 0}
                 >
                   <X className="size-3.5" />
-                  پاک کردن
+                  {tl("clear")}
                 </Button>
               </div>
             </div>
@@ -656,12 +658,12 @@ export function GroupMembersDialog({
               {usersLoading ? (
                 <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
                   <Loader2 className="size-5 animate-spin" />
-                  در حال دریافت کاربران...
+                  {tl("loadingUsers")}
                 </div>
               ) : usersError ? (
                 <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
                   <p className="text-sm text-destructive">
-                    دریافت فهرست کاربران ناموفق بود.
+                    {tl("couldnTLoadTheUser")}
                   </p>
 
                   <Button
@@ -670,7 +672,7 @@ export function GroupMembersDialog({
                     size="sm"
                     onClick={() => setUsersReloadKey((current) => current + 1)}
                   >
-                    تلاش مجدد
+                    {tl("tryAgain")}
                   </Button>
                 </div>
               ) : availableUsers.length === 0 ? (
@@ -679,14 +681,14 @@ export function GroupMembersDialog({
 
                   <p className="text-sm font-medium">
                     {search.trim()
-                      ? "کاربری با این مشخصات پیدا نشد."
-                      : "کاربر قابل انتخابی وجود ندارد."}
+                      ? tl("noUsersMatchYourSearch")
+                      : tl("thereAreNoUsersAvailable")}
                   </p>
 
                   <p className="text-xs text-muted-foreground">
                     {search.trim()
-                      ? "عبارت جست‌وجو را تغییر دهید."
-                      : "کاربران نمایش‌داده‌شده عضو این گروه هستند."}
+                      ? tl("tryADifferentSearchTerm")
+                      : tl("theUsersShownAreAlready")}
                   </p>
                 </div>
               ) : (
@@ -707,7 +709,7 @@ export function GroupMembersDialog({
                           disabled={adding}
                           onChange={() => toggleUser(user.id)}
                           className="size-4 shrink-0 cursor-pointer accent-primary"
-                          aria-label={`انتخاب ${userName(user)}`}
+                          aria-label={tl("select", { p0: userName(user) })}
                         />
 
                         <span className="grid size-9 shrink-0 place-items-center rounded-full border bg-muted text-muted-foreground">
@@ -729,7 +731,7 @@ export function GroupMembersDialog({
 
                         {checked ? (
                           <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
-                            انتخاب‌شده
+                            {tl("selected")}
                           </span>
                         ) : null}
                       </label>
@@ -740,7 +742,7 @@ export function GroupMembersDialog({
             </div>
 
             <p className="shrink-0 text-xs text-muted-foreground">
-              حداکثر ۵۰ نتیجه اول جست‌وجو نمایش داده می‌شود.
+              {tl("onlyTheFirst50Search")}
             </p>
 
             <div className="flex shrink-0 flex-col-reverse gap-2 border-t pt-3 sm:flex-row sm:justify-between">
@@ -750,7 +752,7 @@ export function GroupMembersDialog({
                 disabled={adding}
                 onClick={() => handleAddDialogChange(false)}
               >
-                انصراف
+                {tl("cancel")}
               </Button>
 
               <Button
@@ -769,8 +771,8 @@ export function GroupMembersDialog({
                 )}
 
                 {adding
-                  ? "در حال افزودن..."
-                  : `افزودن ${selectedUserCount} کاربر`}
+                  ? tl("adding")
+                  : tl("addOther", { selectedUserCount })}
               </Button>
             </div>
           </div>
@@ -784,9 +786,9 @@ export function GroupMembersDialog({
           if (removing) return;
           setRemoveConfirmOpen(nextOpen);
         }}
-        title="حذف اعضای انتخاب‌شده"
-        description={`آیا مطمئن هستید که ${selectedMemberCount} عضو انتخاب‌شده از گروه${group ? ` «${group.groupName}»` : ""} حذف شوند؟`}
-        confirmLabel="حذف اعضا"
+        title={tl("removeSelectedMembers")}
+        description={tl("areYouSureYouWant", { selectedMemberCount, p1: group ? ` «${group.groupName}»` : "" })}
+        confirmLabel={tl("removeMembers")}
         onConfirm={handleRemoveMembers}
       />
     </>

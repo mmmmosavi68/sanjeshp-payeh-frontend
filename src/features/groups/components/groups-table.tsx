@@ -53,12 +53,14 @@ import type { GroupDto } from "../types";
 import { GroupFormDialog } from "./group-form-dialog";
 import { GroupMembersDialog } from "./group-members-dialog";
 import { GroupMenuAccessDialog } from "./group-menu-access-dialog";
+import { useTranslations } from "next-intl";
 
 const PAGE_SIZE = 10;
 
 type StatusFilter = "all" | "active" | "inactive";
 
 function StatusBadge({ active }: { active: boolean }) {
+  const tl = useTranslations("screens.groups.groupsTable");
   return (
     <span
       className={
@@ -67,7 +69,7 @@ function StatusBadge({ active }: { active: boolean }) {
           : "inline-flex rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
       }
     >
-      {active ? "فعال" : "غیرفعال"}
+      {active ? tl("active") : tl("inactive")}
     </span>
   );
 }
@@ -92,6 +94,7 @@ function GroupCell({ group }: { group: GroupDto }) {
 }
 
 export function GroupsTable() {
+  const tl = useTranslations("screens.groups.groupsTable");
   const locale = useLocale();
   const format = useFormatter();
   const dir = localeDirections[locale] ?? "ltr";
@@ -198,7 +201,7 @@ export function GroupsTable() {
 
     await deleteGroup(deleteTarget.id);
 
-    toast.success("گروه کاربری با موفقیت حذف شد.");
+    toast.success(tl("userGroupDeletedSuccessfully"));
 
     if (visibleGroups.length === 1 && currentPage > 1) {
       setPage(currentPage - 1);
@@ -226,8 +229,8 @@ export function GroupsTable() {
     return (
       <EmptyState
         icon={<ShieldAlert className="size-5" aria-hidden />}
-        title="دسترسی غیرمجاز"
-        description="شما مجوز مشاهده فهرست گروه‌های کاربری را ندارید."
+        title={tl("accessDenied")}
+        description={tl("youDonTHavePermission")}
       />
     );
   }
@@ -236,8 +239,8 @@ export function GroupsTable() {
   if (failed) {
     return (
       <ErrorState
-        title="دریافت اطلاعات گروه‌ها ناموفق بود"
-        description="ارتباط با سرور برقرار نشد یا امکان دریافت اطلاعات وجود ندارد."
+        title={tl("couldnTLoadTheGroups")}
+        description={tl("couldnTReachTheServer")}
         onRetry={reload}
       />
     );
@@ -262,8 +265,8 @@ export function GroupsTable() {
               setSearchInput(event.target.value);
               setPage(1);
             }}
-            placeholder="جست‌وجو در عنوان گروه‌ها..."
-            aria-label="جست‌وجو در گروه‌ها"
+            placeholder={tl("searchGroupTitles")}
+            aria-label={tl("searchGroups")}
             maxLength={100}
             className="h-9 ps-9"
           />
@@ -279,15 +282,15 @@ export function GroupsTable() {
         >
           <SelectTrigger
             className="w-full sm:w-40"
-            aria-label="وضعیت گروه"
+            aria-label={tl("groupStatus")}
           >
             <SelectValue />
           </SelectTrigger>
 
           <SelectContent>
-            <SelectItem value="all">همه وضعیت‌ها</SelectItem>
-            <SelectItem value="active">فعال</SelectItem>
-            <SelectItem value="inactive">غیرفعال</SelectItem>
+            <SelectItem value="all">{tl("allStatuses")}</SelectItem>
+            <SelectItem value="active">{tl("active")}</SelectItem>
+            <SelectItem value="inactive">{tl("inactive")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -297,7 +300,7 @@ export function GroupsTable() {
             disabled={createPermission.loading}
           >
             <Plus className="size-4" aria-hidden />
-            ایجاد گروه
+            {tl("createGroup")}
           </Button>
         ) : null}
       </div>
@@ -308,13 +311,13 @@ export function GroupsTable() {
           icon={<Users className="size-5" aria-hidden />}
           title={
             hasFilters
-              ? "گروهی با این مشخصات پیدا نشد"
-              : "هنوز گروهی ثبت نشده است"
+              ? tl("noGroupsFound")
+              : tl("noGroupsYet")
           }
           description={
             hasFilters
-              ? "عبارت جست‌وجو یا فیلتر وضعیت را تغییر دهید."
-              : "در حال حاضر هیچ گروه کاربری در سامانه ثبت نشده است."
+              ? tl("changeTheSearchTermOr")
+              : tl("thereAreCurrentlyNoUser")
           }
           action={
             hasFilters ? (
@@ -322,7 +325,7 @@ export function GroupsTable() {
                 variant="outline"
                 onClick={clearFilters}
               >
-                پاک کردن فیلترها
+                {tl("clearFilters")}
               </Button>
             ) : undefined
           }
@@ -336,12 +339,12 @@ export function GroupsTable() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>عنوان گروه</TableHead>
-                  <TableHead>تعداد اعضا</TableHead>
-                  <TableHead>وضعیت</TableHead>
-                  <TableHead>تاریخ ایجاد</TableHead>
+                  <TableHead>{tl("groupTitle")}</TableHead>
+                  <TableHead>{tl("members")}</TableHead>
+                  <TableHead>{tl("status")}</TableHead>
+                  <TableHead>{tl("createdOn")}</TableHead>
                   <TableHead className="w-12">
-                    <span className="sr-only">عملیات</span>
+                    <span className="sr-only">{tl("actions")}</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -383,7 +386,7 @@ export function GroupsTable() {
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
-                                aria-label={`عملیات گروه ${group.groupName}`}
+                                aria-label={tl("actionsForGroup", { p0: group.groupName })}
                               >
                                 <Ellipsis
                                   className="size-4"
@@ -400,7 +403,7 @@ export function GroupsTable() {
                                   className="size-4"
                                   aria-hidden
                                 />
-                                مدیریت اعضا
+                                {tl("manageMembers")}
                               </DropdownMenuItem>
 
                               <DropdownMenuItem
@@ -410,7 +413,7 @@ export function GroupsTable() {
                                   className="size-4"
                                   aria-hidden
                                 />
-                                مدیریت دسترسی منوها
+                                {tl("menuAccessManagement")}
                               </DropdownMenuItem>
 
                               {updatePermission.allowed ? (
@@ -421,7 +424,7 @@ export function GroupsTable() {
                                     className="size-4"
                                     aria-hidden
                                   />
-                                  ویرایش
+                                  {tl("edit")}
                                 </DropdownMenuItem>
                               ) : null}
 
@@ -434,7 +437,7 @@ export function GroupsTable() {
                                     className="size-4"
                                     aria-hidden
                                   />
-                                  حذف
+                                  {tl("delete")}
                                 </DropdownMenuItem>
                               ) : null}
                             </DropdownMenuContent>
@@ -450,8 +453,8 @@ export function GroupsTable() {
           {total > 0 ? (
             <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
               <p className="text-sm text-muted-foreground">
-                نمایش {format.number(from)} تا {format.number(to)} از{" "}
-                {format.number(total)} گروه
+                {tl("showing")} {format.number(from)} {tl("to")} {format.number(to)} {tl("of")}{" "}
+                {format.number(total)} {tl("group")}
               </p>
 
               <div className="flex items-center gap-2">
@@ -461,14 +464,14 @@ export function GroupsTable() {
                   disabled={currentPage <= 1 || loading}
                   onClick={() => setPage((value) => value - 1)}
                 >
-                  قبلی
+                  {tl("previous")}
                 </Button>
 
                 <span
                   className="px-2 text-sm text-muted-foreground"
                   aria-live="polite"
                 >
-                  صفحه {format.number(currentPage)} از{" "}
+                  {tl("page")} {format.number(currentPage)} {tl("of")}{" "}
                   {format.number(totalPages)}
                 </span>
 
@@ -478,7 +481,7 @@ export function GroupsTable() {
                   disabled={currentPage >= totalPages || loading}
                   onClick={() => setPage((value) => value + 1)}
                 >
-                  بعدی
+                  {tl("next")}
                 </Button>
               </div>
             </div>
@@ -531,9 +534,9 @@ export function GroupsTable() {
             setDeleteTarget(null);
           }
         }}
-        title="حذف گروه کاربری"
-        description={`آیا از حذف گروه «${deleteTarget?.groupName ?? ""}» اطمینان دارید؟ این عملیات قابل بازگشت نیست.`}
-        confirmLabel="بله، حذف شود"
+        title={tl("deleteUserGroup")}
+        description={tl("areYouSureYouWant", { p0: deleteTarget?.groupName ?? "" })}
+        confirmLabel={tl("yesDelete")}
         onConfirm={confirmDelete}
       />
     </div>

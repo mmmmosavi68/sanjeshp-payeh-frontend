@@ -12,6 +12,15 @@ const meSchema = z.object({
 
 export type Me = z.infer<typeof meSchema>;
 
+// هدر و سایدبار هر دو پروفایل را می‌خواهند؛ درخواست‌های هم‌زمان یک بار ارسال می‌شود.
+let inflight: { at: number; promise: Promise<Me> } | null = null;
+
 export function getMe(): Promise<Me> {
-  return apiRequest("auth/me", { schema: meSchema });
+  if (inflight && Date.now() - inflight.at < 3000) return inflight.promise;
+  const promise = apiRequest("auth/me", { schema: meSchema }) as Promise<Me>;
+  inflight = { at: Date.now(), promise };
+  promise.catch(() => {
+    if (inflight?.promise === promise) inflight = null;
+  });
+  return promise;
 }

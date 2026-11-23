@@ -146,6 +146,7 @@ function MenuAccessNode({
   onToggle,
   onExpand,
 }: MenuAccessNodeProps) {
+  const tl = useTranslations("screens.users.userMenuAccessDialog");
   const hasChildren = node.children.length > 0;
   const expanded = searching || expandedIds.has(node.id);
 
@@ -175,7 +176,7 @@ function MenuAccessNode({
           type="button"
           onClick={() => hasChildren && onExpand(node.id)}
           disabled={!hasChildren}
-          aria-label={expanded ? "بستن زیرمنوها" : "باز کردن زیرمنوها"}
+          aria-label={expanded ? tl("collapseSubmenus") : tl("expandSubmenus")}
           className="grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted-foreground/10 disabled:cursor-default disabled:opacity-30"
         >
           {hasChildren ? (
@@ -200,7 +201,7 @@ function MenuAccessNode({
             }}
             onChange={() => onToggle(node)}
             className="size-4 shrink-0 cursor-pointer accent-primary"
-            aria-label={`دسترسی به ${node.menuTitle}`}
+            aria-label={tl("accessTo", { p0: node.menuTitle })}
           />
 
           <Icon
@@ -218,7 +219,7 @@ function MenuAccessNode({
 
           {node.showMenu === false ? (
             <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-              مخفی
+              {tl("hidden")}
             </span>
           ) : null}
         </label>
@@ -254,6 +255,7 @@ function MenuAccessNode({
 }
 
 export function UserMenuAccessAction({ user }: Props) {
+  const tl = useTranslations("screens.users.userMenuAccessDialog");
   const t = useTranslations("users.management");
   const tc = useTranslations("common");
 
@@ -498,7 +500,7 @@ export function UserMenuAccessAction({ user }: Props) {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="جست‌وجو در عنوان یا مسیر منو..."
+                placeholder={tl("searchByMenuTitleOr")}
                 className="h-9 ps-9"
                 maxLength={100}
                 disabled={loading || failed}
@@ -507,7 +509,7 @@ export function UserMenuAccessAction({ user }: Props) {
 
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
               <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary tabular-nums">
-                {selectedCount} منوی انتخاب‌شده
+                {selectedCount} {tl("selectedMenu")}
               </span>
 
               <div className="flex flex-wrap items-center gap-1">
@@ -518,7 +520,7 @@ export function UserMenuAccessAction({ user }: Props) {
                   onClick={selectAll}
                   disabled={loading || failed || menus.length === 0}
                 >
-                  انتخاب همه
+                  {tl("selectAll")}
                 </Button>
 
                 <Button
@@ -528,7 +530,7 @@ export function UserMenuAccessAction({ user }: Props) {
                   onClick={clearSelection}
                   disabled={loading || failed || selectedCount === 0}
                 >
-                  پاک کردن انتخاب
+                  {tl("clearSelection")}
                 </Button>
               </div>
             </div>
@@ -537,7 +539,7 @@ export function UserMenuAccessAction({ user }: Props) {
               {loading ? (
                 <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="size-5 animate-spin" />
-                  در حال دریافت اطلاعات دسترسی‌ها...
+                  {tl("loadingAccessInformation")}
                 </div>
               ) : failed ? (
                 <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center">
@@ -551,7 +553,7 @@ export function UserMenuAccessAction({ user }: Props) {
                     size="sm"
                     onClick={handleRetry}
                   >
-                    تلاش مجدد
+                    {tl("tryAgain")}
                   </Button>
                 </div>
               ) : filteredTree.length > 0 ? (
@@ -563,7 +565,7 @@ export function UserMenuAccessAction({ user }: Props) {
                       size="sm"
                       onClick={expandAll}
                     >
-                      باز کردن همه
+                      {tl("expandAll")}
                     </Button>
 
                     <Button
@@ -572,7 +574,7 @@ export function UserMenuAccessAction({ user }: Props) {
                       size="sm"
                       onClick={collapseAll}
                     >
-                      بستن همه
+                      {tl("collapseAll")}
                     </Button>
                   </div>
 
@@ -595,13 +597,13 @@ export function UserMenuAccessAction({ user }: Props) {
 
                   <p className="text-sm font-medium">
                     {search
-                      ? "موردی با این عبارت پیدا نشد."
+                      ? tl("noResultsMatchYourSearch")
                       : t("access.noMenus")}
                   </p>
 
                   {search ? (
                     <p className="text-xs text-muted-foreground">
-                      عبارت جست‌وجو را تغییر دهید.
+                      {tl("tryADifferentSearchTerm")}
                     </p>
                   ) : null}
                 </div>

@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { createGroup, updateGroup } from "../api";
 import { groupSchema, type GroupFormInput } from "../schemas/group-schema";
 import type { GroupDto } from "../types";
+import { useTranslations } from "next-intl";
 
 type GroupFormDialogProps = {
   open: boolean;
@@ -36,6 +37,7 @@ export function GroupFormDialog({
   group,
   onSaved,
 }: GroupFormDialogProps) {
+  const tl = useTranslations("screens.groups.groupFormDialog");
   const editing = group !== null;
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -75,10 +77,10 @@ export function GroupFormDialog({
 
       if (group) {
         await updateGroup(group.id, payload);
-        toast.success("گروه با موفقیت ویرایش شد.");
+        toast.success(tl("groupUpdatedSuccessfully"));
       } else {
         await createGroup(payload);
-        toast.success("گروه با موفقیت ایجاد شد.");
+        toast.success(tl("groupCreatedSuccessfully"));
       }
 
       onOpenChange(false);
@@ -87,7 +89,7 @@ export function GroupFormDialog({
       setFormError(
         error instanceof Error
           ? error.message
-          : "عملیات ذخیره گروه ناموفق بود.",
+          : tl("couldnTSaveTheGroup"),
       );
     }
   }
@@ -97,12 +99,12 @@ export function GroupFormDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editing ? "ویرایش گروه کاربری" : "ایجاد گروه کاربری"}
+            {editing ? tl("editUserGroup") : tl("createUserGroup")}
           </DialogTitle>
           <DialogDescription>
             {editing
-              ? "اطلاعات گروه کاربری را ویرایش کنید."
-              : "اطلاعات گروه کاربری جدید را وارد کنید."}
+              ? tl("editTheUserGroupDetails")
+              : tl("enterTheDetailsOfThe")}
           </DialogDescription>
         </DialogHeader>
 
@@ -121,10 +123,10 @@ export function GroupFormDialog({
           ) : null}
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="group-name">عنوان گروه</Label>
+            <Label htmlFor="group-name">{tl("groupTitle")}</Label>
             <Input
               id="group-name"
-              placeholder="مثلاً مدیران سامانه"
+              placeholder={tl("eGSystemAdministrators")}
               maxLength={100}
               autoFocus
               {...register("groupName")}
@@ -149,7 +151,7 @@ export function GroupFormDialog({
               }
             />
             <Label htmlFor="group-active" className="font-normal">
-              گروه فعال باشد
+              {tl("thisGroupIsActive")}
             </Label>
           </div>
 
@@ -160,7 +162,7 @@ export function GroupFormDialog({
               disabled={isSubmitting}
               onClick={() => onOpenChange(false)}
             >
-              انصراف
+              {tl("cancel")}
             </Button>
 
             <Button
@@ -170,7 +172,7 @@ export function GroupFormDialog({
               {isSubmitting ? (
                 <Loader2 className="size-4 animate-spin" aria-hidden />
               ) : null}
-              ذخیره
+              {tl("save")}
             </Button>
           </div>
         </form>

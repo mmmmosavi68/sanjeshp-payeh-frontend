@@ -42,8 +42,10 @@ import {
 
 import type { ExamRegistrationDto } from "../types";
 import { StudentRegistrationFormDialog } from "./student-registration-form-dialog";
+import { useTranslations } from "next-intl";
+import { useFormatters } from "@/lib/format";
 
-const fa = (value: number) => value.toLocaleString("fa-IR");
+
 
 const selectContentProps = {
   position: "popper" as const,
@@ -53,6 +55,8 @@ const selectContentProps = {
 };
 
 export function StudentRegistrationManager() {
+  const { num, date } = useFormatters();
+  const tl = useTranslations("screens.studentRegistrations.studentRegistrationManager");
   const {
     data: universities,
     loading: universitiesLoading,
@@ -159,7 +163,7 @@ export function StudentRegistrationManager() {
 
     if (
       !window.confirm(
-        `آیا از حذف ثبت‌نام «${fullName}» اطمینان دارید؟`,
+        tl("areYouSureYouWant", { fullName }),
       )
     ) {
       return;
@@ -169,13 +173,13 @@ export function StudentRegistrationManager() {
 
     try {
       await deleteExamRegistration(item.id);
-      toast.success("ثبت‌نام داوطلب با موفقیت حذف شد.");
+      toast.success(tl("candidateRegistrationDeletedSuccessfully"));
       reloadRegistrations();
     } catch (error) {
       toast.error(
         error instanceof Error && error.message
           ? error.message
-          : "حذف ثبت‌نام ناموفق بود.",
+          : tl("couldnTDeleteTheRegistration"),
       );
     } finally {
       setDeletingId(null);
@@ -194,8 +198,8 @@ export function StudentRegistrationManager() {
   if (universitiesFailed) {
     return (
       <ErrorState
-        title="خطا در دریافت دانشگاه‌ها"
-        description="دریافت فهرست دانشگاه‌های مجاز شما ناموفق بود."
+        title={tl("couldnTLoadUniversities")}
+        description={tl("couldnTLoadTheList")}
         onRetry={reloadUniversities}
       />
     );
@@ -205,8 +209,8 @@ export function StudentRegistrationManager() {
     return (
       <EmptyState
         icon={<Building2 className="size-5" />}
-        title="دانشگاهی برای شما تعریف نشده است"
-        description="برای ثبت‌نام دانشجویان، ابتدا باید دسترسی دانشگاه برای حساب کاربری شما ثبت شود."
+        title={tl("noUniversitiesAssignedToYou")}
+        description={tl("toRegisterStudentsUniversityAccess")}
       />
     );
   }
@@ -218,7 +222,7 @@ export function StudentRegistrationManager() {
         <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-64">
           <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <Building2 className="size-4" />
-            دانشگاه محل تحصیل
+            {tl("homeUniversity")}
           </label>
 
           {universities.length === 1 ? (
@@ -234,7 +238,7 @@ export function StudentRegistrationManager() {
               }}
             >
               <SelectTrigger className="h-9 w-full">
-                <SelectValue placeholder="دانشگاه را انتخاب کنید" />
+                <SelectValue placeholder={tl("selectAUniversity")} />
               </SelectTrigger>
 
               <SelectContent {...selectContentProps}>
@@ -254,7 +258,7 @@ export function StudentRegistrationManager() {
         <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-64">
           <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <GraduationCap className="size-4" />
-            آزمون
+            {tl("exam")}
           </label>
 
           <Select
@@ -266,10 +270,10 @@ export function StudentRegistrationManager() {
               <SelectValue
                 placeholder={
                   !universityId
-                    ? "ابتدا دانشگاه را انتخاب کنید"
+                    ? tl("selectAUniversityFirst")
                     : examsLoading
-                      ? "در حال دریافت آزمون‌ها..."
-                      : "آزمون را انتخاب کنید"
+                      ? tl("loadingExams")
+                      : tl("selectAnExam")
                 }
               />
             </SelectTrigger>
@@ -297,7 +301,7 @@ export function StudentRegistrationManager() {
             }}
           >
             <RefreshCw className="size-4" />
-            بروزرسانی
+            {tl("refresh")}
           </Button>
         </div>
       </section>
@@ -305,13 +309,13 @@ export function StudentRegistrationManager() {
       {!universityId ? (
         <EmptyState
           icon={<Building2 className="size-5" />}
-          title="دانشگاه را انتخاب کنید"
-          description="پس از انتخاب دانشگاه، آزمون‌های قابل ثبت‌نام نمایش داده می‌شوند."
+          title={tl("selectAUniversity")}
+          description={tl("selectAUniversityToSee")}
         />
       ) : examsFailed ? (
         <ErrorState
-          title="خطا در دریافت آزمون‌ها"
-          description="دریافت فهرست آزمون‌های قابل ثبت‌نام ناموفق بود."
+          title={tl("couldnTLoadExams")}
+          description={tl("couldnTLoadTheList2")}
           onRetry={reloadExams}
         />
       ) : examsLoading ? (
@@ -319,14 +323,14 @@ export function StudentRegistrationManager() {
       ) : !exams?.length ? (
         <EmptyState
           icon={<GraduationCap className="size-5" />}
-          title="آزمونی برای ثبت‌نام وجود ندارد"
-          description="در حال حاضر آزمون قابل ثبت‌نامی برای این دانشگاه یافت نشد."
+          title={tl("noExamsOpenForRegistration")}
+          description={tl("thereAreCurrentlyNoExams")}
         />
       ) : !examId ? (
         <EmptyState
           icon={<GraduationCap className="size-5" />}
-          title="آزمون را انتخاب کنید"
-          description="برای مشاهده ثبت‌نام‌های دانشجویان، یک آزمون انتخاب کنید."
+          title={tl("selectAnExam")}
+          description={tl("selectAnExamToView")}
         />
       ) : (
         <section className="min-w-0 overflow-hidden rounded-lg border bg-card">
@@ -334,7 +338,7 @@ export function StudentRegistrationManager() {
             <div className="min-w-0 space-y-1">
               <h2 className="flex items-center gap-2 text-sm font-semibold">
                 <Users className="size-4 text-primary" />
-                ثبت‌نام‌های دانشجویان
+                {tl("studentRegistrations")}
               </h2>
 
               <p className="truncate text-xs text-muted-foreground">
@@ -347,7 +351,7 @@ export function StudentRegistrationManager() {
             <div className="flex flex-wrap items-center gap-2">
               {!registrationsLoading && registrations && (
                 <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
-                  {fa(registrations.length)} داوطلب
+                  {num(registrations.length)} {tl("candidate")}
                 </span>
               )}
 
@@ -359,7 +363,7 @@ export function StudentRegistrationManager() {
                 disabled={registrationsLoading}
               >
                 <RefreshCw className="size-3.5" />
-                بروزرسانی
+                {tl("refresh")}
               </Button>
 
               <Button
@@ -368,7 +372,7 @@ export function StudentRegistrationManager() {
                 onClick={openCreateForm}
               >
                 <UserPlus className="me-2 size-4" />
-                ثبت‌نام جدید
+                {tl("newRegistration")}
               </Button>
             </div>
           </header>
@@ -382,34 +386,34 @@ export function StudentRegistrationManager() {
           ) : registrationsFailed ? (
             <div className="p-3">
               <ErrorState
-                title="خطا در دریافت ثبت‌نام‌ها"
-                description="فهرست داوطلبان این آزمون دریافت نشد."
+                title={tl("couldnTLoadRegistrations")}
+                description={tl("theCandidateListForThis")}
                 onRetry={reloadRegistrations}
               />
             </div>
           ) : !registrations?.length ? (
             <EmptyState
               icon={<Users className="size-5" />}
-              title="ثبت‌نامی وجود ندارد"
-              description="برای این آزمون هنوز داوطلبی در این دانشگاه ثبت‌نام نشده است."
+              title={tl("noRegistrations")}
+              description={tl("noCandidateHasRegisteredFor")}
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-start">ردیف</TableHead>
+                  <TableHead className="text-start">{tl("no")}</TableHead>
                   <TableHead className="text-start">
-                    نام و نام خانوادگی
+                    {tl("fullName")}
                   </TableHead>
-                  <TableHead className="text-start">کد ملی</TableHead>
+                  <TableHead className="text-start">{tl("nationalId")}</TableHead>
                   <TableHead className="text-start">
-                    شماره دانشجویی
+                    {tl("studentNumber")}
                   </TableHead>
                   <TableHead className="text-start">
-                    دانشگاه محل آزمون
+                    {tl("examVenueUniversity")}
                   </TableHead>
-                  <TableHead className="text-start">تاریخ ثبت</TableHead>
-                  <TableHead className="text-center">عملیات</TableHead>
+                  <TableHead className="text-start">{tl("registeredOn")}</TableHead>
+                  <TableHead className="text-center">{tl("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -417,7 +421,7 @@ export function StudentRegistrationManager() {
                 {registrations.map((item, index) => (
                   <TableRow key={item.id}>
                     <TableCell className="text-start tabular-nums">
-                      {fa(index + 1)}
+                      {num(index + 1)}
                     </TableCell>
 
                     <TableCell className="font-medium">
@@ -438,7 +442,7 @@ export function StudentRegistrationManager() {
 
                     <TableCell className="tabular-nums">
                       {item.createdDate
-                        ? new Date(item.createdDate).toLocaleDateString("fa-IR")
+                        ? date(new Date(item.createdDate))
                         : "—"}
                     </TableCell>
 
@@ -448,7 +452,7 @@ export function StudentRegistrationManager() {
                           type="button"
                           size="icon-sm"
                           variant="outline"
-                          title="ویرایش اطلاعات"
+                          title={tl("editDetails")}
                           onClick={() => openEditForm(item.id)}
                         >
                           <Pencil className="size-4" />
@@ -458,7 +462,7 @@ export function StudentRegistrationManager() {
                           type="button"
                           size="icon-sm"
                           variant="destructive"
-                          title="حذف ثبت‌نام"
+                          title={tl("deleteRegistration")}
                           disabled={deletingId === item.id}
                           onClick={() => handleDelete(item)}
                         >

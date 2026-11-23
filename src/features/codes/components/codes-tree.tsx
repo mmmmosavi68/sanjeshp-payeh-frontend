@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 import type { CodeDto } from "../types";
+import { useTranslations } from "next-intl";
 
 type CodesTreeProps = {
   root: CodeDto;
@@ -43,6 +44,7 @@ export function CodesTree({
   onEdit,
   onDelete,
 }: CodesTreeProps) {
+  const tl = useTranslations("screens.codes.codesTree");
   const [search, setSearch] = useState("");
 
   const [expandedIds, setExpandedIds] = useState<Set<number>>(
@@ -158,7 +160,7 @@ export function CodesTree({
 
             {!item.isActive && (
               <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[10px] text-destructive">
-                غیرفعال
+                {tl("inactive")}
               </span>
             )}
           </div>
@@ -176,8 +178,8 @@ export function CodesTree({
               variant="ghost"
               size="icon-sm"
               className="size-8"
-              title="افزودن آیتم"
-              aria-label={`افزودن آیتم به ${item.title}`}
+              title={tl("addItem")}
+              aria-label={tl("addItemTo", { p0: item.title })}
               onClick={() => onCreateItem(item)}
             >
               <Plus className="size-4" />
@@ -188,8 +190,8 @@ export function CodesTree({
             variant="ghost"
             size="icon-sm"
             className="size-8"
-            title="ویرایش آیتم"
-            aria-label={`ویرایش ${item.title}`}
+            title={tl("editItem")}
+            aria-label={tl("edit", { p0: item.title })}
             onClick={() => onEdit(item)}
           >
             <Pencil className="size-4" />
@@ -200,8 +202,8 @@ export function CodesTree({
             variant="ghost"
             size="icon-sm"
             className="size-8 text-destructive hover:text-destructive"
-            title="حذف آیتم"
-            aria-label={`حذف ${item.title}`}
+            title={tl("deleteItem")}
+            aria-label={tl("delete", { p0: item.title })}
             onClick={() => onDelete(item)}
           >
             <Trash2 className="size-4" />
@@ -230,7 +232,7 @@ export function CodesTree({
             onClick={() => hasChildren && toggleGroup(group.id)}
             disabled={!hasChildren}
             aria-label={
-              isExpanded ? "بستن آیتم‌های گروه" : "باز کردن آیتم‌های گروه"
+              isExpanded ? tl("collapseGroupItems") : tl("expandGroupItems")
             }
             className={cn(
               "grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors",
@@ -267,7 +269,7 @@ export function CodesTree({
 
               {!group.isActive && (
                 <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[10px] text-destructive">
-                  غیرفعال
+                  {tl("inactive")}
                 </span>
               )}
             </div>
@@ -285,8 +287,8 @@ export function CodesTree({
               variant="ghost"
               size="icon-sm"
               className="size-8"
-              title="افزودن آیتم"
-              aria-label={`افزودن آیتم به ${group.title}`}
+              title={tl("addItem")}
+              aria-label={tl("addItemTo", { p0: group.title })}
               onClick={() => onCreateItem(group)}
             >
               <Plus className="size-4" />
@@ -297,8 +299,8 @@ export function CodesTree({
               variant="ghost"
               size="icon-sm"
               className="size-8"
-              title="ویرایش گروه"
-              aria-label={`ویرایش ${group.title}`}
+              title={tl("editGroup")}
+              aria-label={tl("edit", { p0: group.title })}
               onClick={() => onEdit(group)}
             >
               <Pencil className="size-4" />
@@ -309,8 +311,8 @@ export function CodesTree({
               variant="ghost"
               size="icon-sm"
               className="size-8 text-destructive hover:text-destructive"
-              title="حذف گروه"
-              aria-label={`حذف ${group.title}`}
+              title={tl("deleteGroup")}
+              aria-label={tl("delete", { p0: group.title })}
               onClick={() => onDelete(group)}
             >
               <Trash2 className="size-4" />
@@ -340,8 +342,8 @@ export function CodesTree({
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="جست‌وجو در گروه‌ها و آیتم‌ها..."
-            aria-label="جست‌وجو در کدها"
+            placeholder={tl("searchGroupsAndItems")}
+            aria-label={tl("searchCodes")}
             maxLength={100}
             className="h-9 ps-9"
           />
@@ -352,7 +354,7 @@ export function CodesTree({
           onClick={onCreateGroup}
         >
           <Plus className="size-4" aria-hidden />
-          افزودن گروه
+          {tl("addGroup")}
         </Button>
       </div>
 
@@ -362,7 +364,7 @@ export function CodesTree({
             <Folder className="size-4 text-muted-foreground" />
 
             <span className="text-sm font-medium">
-              ساختار کدهای اطلاعات پایه
+              {tl("baseCodeStructure")}
             </span>
 
             <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
@@ -378,7 +380,7 @@ export function CodesTree({
               onClick={expandAll}
               disabled={groups.length === 0}
             >
-              باز کردن همه
+              {tl("expandAll")}
             </Button>
 
             <Button
@@ -388,7 +390,7 @@ export function CodesTree({
               onClick={collapseAll}
               disabled={groups.length === 0}
             >
-              بستن همه
+              {tl("collapseAll")}
             </Button>
           </div>
         </div>
@@ -403,14 +405,14 @@ export function CodesTree({
 
             <p className="text-sm font-medium">
               {search
-                ? "موردی با این عبارت پیدا نشد."
-                : "هنوز گروهی ثبت نشده است."}
+                ? tl("noResultsMatchYourSearch")
+                : tl("noGroupsYet")}
             </p>
 
             <p className="text-xs text-muted-foreground">
               {search
-                ? "عبارت جست‌وجو را تغییر دهید."
-                : `برای شروع، یک گروه زیر «${root.title}» ایجاد کنید.`}
+                ? tl("tryADifferentSearchTerm")
+                : tl("toGetStartedCreateA", { p0: root.title })}
             </p>
           </div>
         )}
