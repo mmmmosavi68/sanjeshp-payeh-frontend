@@ -5,6 +5,8 @@ import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { USER_CODE_GROUPS } from "@/constants/codes";
+import { SelectField } from "@/components/shared/select-field";
 import { toast } from "sonner";
 
 import { FormField } from "@/components/shared/form-field";
@@ -29,7 +31,7 @@ import {
   updateUser,
   type CodeOption,
 } from "../api";
-import { userErrorText } from "../error-message";
+import { useApiError } from "@/hooks/use-api-error";
 import {
   createUserSchema,
   type UserCodeOptions,
@@ -138,6 +140,7 @@ function UserForm({
   const t = useTranslations("users");
   const tc = useTranslations("common");
   const tRoot = useTranslations();
+  const { errorText } = useApiError();
   const locale = useLocale();
 
   const [formError, setFormError] = useState<string | null>(null);
@@ -164,11 +167,11 @@ useEffect(() => {
           leftHanded,
           nationality,
         ] = await Promise.all([
-          getCodeItems(2),
-          getCodeItems(1),
-          getCodeItems(3),
-          getCodeItems(5),
-          getCodeItems(4),
+          getCodeItems(USER_CODE_GROUPS.gender),
+          getCodeItems(USER_CODE_GROUPS.maritalStatus),
+          getCodeItems(USER_CODE_GROUPS.religion),
+          getCodeItems(USER_CODE_GROUPS.leftHanded),
+          getCodeItems(USER_CODE_GROUPS.nationality),
         ]);
 
         const result: CodeOptionsState = {
@@ -373,32 +376,31 @@ useEffect(() => {
 
       onSaved();
     } catch (error) {
-      setFormError(userErrorText(error, tRoot));
+      setFormError(errorText(error));
     }
   }
 
-  const selectClass =
-    "h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  const codeSelectDisabled = codesLoading || codesFailed || !codeOptions;
 
-  const codeSelectDisabled =
-    codesLoading || codesFailed || !codeOptions;
-
-  function renderCodeOptions(items: CodeOption[] | undefined) {
+  /** Code-based Select: option value is the code's subCode (within the field's code group). */
+  function renderCodeSelect(name: "gender" | "maritalStatus" | "religion" | "leftHanded" | "nationality", label: string, items: CodeOption[] | undefined) {
     return (
-      <>
-        <option value="" disabled>
-          {codesLoading ? tl("loading") : tl("select")}
-        </option>
-
-        {items?.map((item) => (
-          <option
-            key={item.id}
-            value={String(item.subCode)}
-          >
-            {item.title}
-          </option>
-        ))}
-      </>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <SelectField
+            label={label}
+            placeholder={codesLoading ? tl("loading") : tl("select")}
+            options={(items ?? []).map((item) => ({ value: String(item.subCode), label: item.title }))}
+            loading={codesLoading}
+            disabled={codeSelectDisabled}
+            value={field.value ? String(field.value) : null}
+            onChange={field.onChange}
+            error={errors[name]?.message}
+          />
+        )}
+      />
     );
   }
 
@@ -505,114 +507,19 @@ useEffect(() => {
       />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="user-gender">
-            {t("form.gender")}
-          </Label>
+        {renderCodeSelect("gender", t("form.gender"), codeOptions?.gender)}
 
-          <select
-            id="user-gender"
-            className={selectClass}
-            disabled={codeSelectDisabled}
-            {...register("gender")}
-          >
-            {renderCodeOptions(codeOptions?.gender)}
-          </select>
-
-          {errors.gender?.message ? (
-            <p className="text-xs text-destructive">
-              {errors.gender.message}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="user-marital-status">
-            {t("form.maritalStatus")}
-          </Label>
-
-          <select
-            id="user-marital-status"
-            className={selectClass}
-            disabled={codeSelectDisabled}
-            {...register("maritalStatus")}
-          >
-            {renderCodeOptions(codeOptions?.maritalStatus)}
-          </select>
-
-          {errors.maritalStatus?.message ? (
-            <p className="text-xs text-destructive">
-              {errors.maritalStatus.message}
-            </p>
-          ) : null}
-        </div>
+        {renderCodeSelect("maritalStatus", t("form.maritalStatus"), codeOptions?.maritalStatus)}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="user-religion">
-            {t("form.religion")}
-          </Label>
+        {renderCodeSelect("religion", t("form.religion"), codeOptions?.religion)}
 
-          <select
-            id="user-religion"
-            className={selectClass}
-            disabled={codeSelectDisabled}
-            {...register("religion")}
-          >
-            {renderCodeOptions(codeOptions?.religion)}
-          </select>
-
-          {errors.religion?.message ? (
-            <p className="text-xs text-destructive">
-              {errors.religion.message}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="user-left-handed">
-            {t("form.leftHanded")}
-          </Label>
-
-          <select
-            id="user-left-handed"
-            className={selectClass}
-            disabled={codeSelectDisabled}
-            {...register("leftHanded")}
-          >
-            {renderCodeOptions(codeOptions?.leftHanded)}
-          </select>
-
-          {errors.leftHanded?.message ? (
-            <p className="text-xs text-destructive">
-              {errors.leftHanded.message}
-            </p>
-          ) : null}
-        </div>
+        {renderCodeSelect("leftHanded", t("form.leftHanded"), codeOptions?.leftHanded)}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="user-nationality">
-            {t("form.nationality")}
-          </Label>
-
-          <select
-            id="user-nationality"
-            className={selectClass}
-            disabled={codeSelectDisabled}
-            {...register("nationality")}
-          >
-            {renderCodeOptions(codeOptions?.nationality)}
-          </select>
-
-          {errors.nationality?.message ? (
-            <p className="text-xs text-destructive">
-              {errors.nationality.message}
-            </p>
-          ) : null}
-        </div>
+        {renderCodeSelect("nationality", t("form.nationality"), codeOptions?.nationality)}
 
         <FormField
           id="user-expire-date"

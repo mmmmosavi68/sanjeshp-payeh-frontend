@@ -1,10 +1,12 @@
 
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { SelectField } from "@/components/shared/select-field";
 import { toast } from "sonner";
 
 import { FormField } from "@/components/shared/form-field";
@@ -27,7 +29,7 @@ import type {
   MenuFormDefaultValues,
 } from "../types";
 import {
-  menuSchema,
+  createMenuSchema,
   type MenuFormInput,
   type MenuFormValues,
 } from "../schemas/menu-schema";
@@ -136,6 +138,9 @@ export function MenuFormSheet({
   defaultParentId = null,
 }: MenuFormSheetProps) {
   const tl = useTranslations("screens.menus.menuFormSheet");
+  const tv = useTranslations("validation.menus");
+  const schema = useMemo(() => createMenuSchema(tv), [tv]);
+  const { errorText } = useApiError();
   const isEdit = Boolean(menu);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -156,7 +161,7 @@ const {
   reset,
   formState: { errors, isSubmitting },
 } = useForm<MenuFormInput, unknown, MenuFormValues>({
-  resolver: zodResolver(menuSchema),
+  resolver: zodResolver(schema),
   defaultValues: emptyValues,
 });
 
@@ -225,9 +230,7 @@ useEffect(() => {
       onSaved();
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : tl("couldnTSaveTheMenu");
+        errorText(error, tl("couldnTSaveTheMenu"));
 
       setFormError(message);
     }
@@ -280,26 +283,21 @@ useEffect(() => {
                 {...register("menuTitle")}
               />
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="menu-parent">{tl("parentMenu")}</Label>
-                <select
-                  id="menu-parent"
-                  className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                  {...register("parentId")}
-                >
-                  <option value="">{tl("noParentTopLevelMenu")}</option>
-                  {parentOptions.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-                {errors.parentId?.message && (
-                  <p className="text-xs text-destructive">
-                    {errors.parentId.message}
-                  </p>
+              <Controller
+                control={control}
+                name="parentId"
+                render={({ field }) => (
+                  <SelectField
+                    label={tl("parentMenu")}
+                    placeholder={tl("noParentTopLevelMenu")}
+                    options={parentOptions.map((item) => ({ value: item.id, label: item.title }))}
+                    value={typeof field.value === "string" && field.value ? field.value : null}
+                    onChange={field.onChange}
+                    onClear={() => field.onChange(null)}
+                    error={errors.parentId?.message}
+                  />
                 )}
-              </div>
+              />
 
               <FormField
                 id="menu-page-code"

@@ -1,6 +1,8 @@
 export interface CodeDto {
   id: number;
   title: string;
+  /** English title (optional; sent by the backend once multilingual titles exist). */
+  titleEn?: string | null;
   parentId: number | null;
   standardCode: number | null;
   primaryCode: number | null;

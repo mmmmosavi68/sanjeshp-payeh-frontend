@@ -1,40 +1,28 @@
 import { z } from "zod";
 
-export const menuSchema = z.object({
-  // اطلاعات اصلی
-  menuTitle: z.string().trim().min(1, "عنوان منو الزامی است.").max(100, "عنوان منو نباید بیشتر از ۱۰۰ کاراکتر باشد."),
+type Translate = (key: string) => string;
 
-  parentId: z.preprocess((value) => (value === "" || value === undefined ? null : value), z.string().uuid("شناسه منوی والد معتبر نیست.").nullable()),
+/** `t` is `useTranslations("validation.menus")`. */
+export function createMenuSchema(t: Translate) {
+  return z.object({
+    menuTitle: z.string().trim().min(1, t("titleRequired")).max(100, t("titleMax")),
+    parentId: z.preprocess((value) => (value === "" || value === undefined ? null : value), z.string().uuid(t("parentInvalid")).nullable()),
+    pageCode: z.preprocess((value) => {
+      if (value === "" || value === null || value === undefined) return null;
+      return Number(value);
+    }, z.number().int(t("orderInteger")).nullable()),
+    path: z.string().trim().max(200, t("pathMax")),
+    link: z.string().trim().max(200, t("linkMax")),
+    version: z.string().trim().max(100, t("versionMax")),
+    controllerName: z.string().trim().max(100, t("controllerMax")),
+    actionName: z.string().trim().max(100, t("actionMax")),
+    icon: z.string().trim().max(100, t("iconMax")),
+    cssClass: z.string().trim().max(50, t("cssClassMax")),
+    showMenu: z.boolean(),
+    isActive: z.boolean(),
+  });
+}
 
-  pageCode: z.preprocess((value) => {
-    if (value === "" || value === null || value === undefined) {
-      return null;
-    }
-
-    return Number(value);
-  }, z.number().int("ترتیب نمایش باید عدد صحیح باشد.").nullable()),
-
-  // مسیریابی و مجوز
-  path: z.string().trim().max(200, "مسیر نباید بیشتر از ۲۰۰ کاراکتر باشد."),
-
-  link: z.string().trim().max(200, "لینک نباید بیشتر از ۲۰۰ کاراکتر باشد."),
-
-  version: z.string().trim().max(100, "نسخه نباید بیشتر از ۱۰۰ کاراکتر باشد."),
-
-  controllerName: z.string().trim().max(100, "نام کنترلر نباید بیشتر از ۱۰۰ کاراکتر باشد."),
-
-  actionName: z.string().trim().max(100, "نام اکشن نباید بیشتر از ۱۰۰ کاراکتر باشد."),
-
-  // تنظیمات نمایش
-  icon: z.string().trim().max(100, "نام آیکون نباید بیشتر از ۱۰۰ کاراکتر باشد."),
-
-  cssClass: z.string().trim().max(50, "کلاس CSS نباید بیشتر از ۵۰ کاراکتر باشد."),
-
-  showMenu: z.boolean(),
-
-  isActive: z.boolean(),
-});
-
-export type MenuFormInput = z.input<typeof menuSchema>;
-
-export type MenuFormValues = z.output<typeof menuSchema>;
+type MenuSchema = ReturnType<typeof createMenuSchema>;
+export type MenuFormInput = z.input<MenuSchema>;
+export type MenuFormValues = z.output<MenuSchema>;

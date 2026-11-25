@@ -7,9 +7,12 @@ export interface ExamDto {
   examDate: string;
 
   examTypeId: number;
+  /** primaryCode:subCode — the value used by every Select/filter. */
+  examTypeKey: string | null;
   examTypeTitle: string | null;
 
   examModeId: number;
+  examModeKey: string | null;
   examModeTitle: string | null;
 
   registrationStartDate: string;
@@ -32,16 +35,18 @@ export interface ExamSessionOption {
 export interface ExamFilters {
   search?: string;
   examSessionId?: string;
-  examTypeId?: number;
-  examModeId?: number;
+  /** CodeKey (primaryCode:subCode) */
+  examTypeKey?: string;
+  examModeKey?: string;
   isActive?: boolean;
 }
 
 export interface CreateExamDto {
   title: string;
   examSessionId: string;
-  examTypeId: number;
-  examModeId: number;
+  /** CodeKey (primaryCode:subCode); converted to API fields by the codes adapter. */
+  examTypeKey: string;
+  examModeKey: string;
   registrationStartDate: string;
   registrationEndDate: string;
   editStartDate: string | null;

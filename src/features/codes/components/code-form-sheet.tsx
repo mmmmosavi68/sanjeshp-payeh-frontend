@@ -1,9 +1,10 @@
 
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -11,6 +12,8 @@ import { FormField } from "@/components/shared/form-field";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { SelectField } from "@/components/shared/select-field";
+import { FormAlert } from "@/components/shared/form-alert";
 import {
   Sheet,
   SheetContent,
@@ -23,7 +26,7 @@ import {
 import { createCode, updateCode } from "../api";
 import type { CodeDto, CreateCodeDto } from "../types";
 import {
-  codeSchema,
+  createCodeSchema,
   type CodeFormInput,
   type CodeFormValues,
 } from "../schemas/code-schema";
@@ -60,6 +63,9 @@ export function CodeFormSheet({
   onSaved,
 }: CodeFormSheetProps) {
   const tl = useTranslations("screens.codes.codeFormSheet");
+  const { errorText } = useApiError();
+  const tv = useTranslations("validation.codes");
+  const schema = useMemo(() => createCodeSchema(tv), [tv]);
   const isEdit = Boolean(code);
   const isGroup = code
     ? code.subCode === 0
@@ -74,7 +80,7 @@ export function CodeFormSheet({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CodeFormInput, unknown, CodeFormValues>({
-    resolver: zodResolver(codeSchema),
+    resolver: zodResolver(schema),
     defaultValues: emptyValues,
   });
 
@@ -142,9 +148,7 @@ export function CodeFormSheet({
       onSaved();
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : tl("savingFailed");
+        errorText(error, tl("savingFailed"));
 
       setFormError(message);
     }
@@ -180,14 +184,7 @@ export function CodeFormSheet({
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3">
-            {formError && (
-              <div
-                role="alert"
-                className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-              >
-                {formError}
-              </div>
-            )}
+            <FormAlert message={formError} />
 
             <section className="space-y-4">
               <h3 className="text-sm font-semibold">
@@ -217,32 +214,20 @@ export function CodeFormSheet({
                 />
               ) : (
                 <>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="code-parent">{tl("parentGroup")}</Label>
-
-                    <select
-                      id="code-parent"
-                      className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                      {...register("parentId", {
-                        setValueAs: (value) =>
-                          value === "" ? null : Number(value),
-                      })}
-                    >
-                      <option value="">{tl("selectAGroup")}</option>
-
-                      {groups.map((group) => (
-                        <option key={group.id} value={group.id}>
-                          {group.title}
-                        </option>
-                      ))}
-                    </select>
-
-                    {errors.parentId?.message && (
-                      <p className="text-xs text-destructive">
-                        {errors.parentId.message}
-                      </p>
+                  <Controller
+                    control={control}
+                    name="parentId"
+                    render={({ field }) => (
+                      <SelectField<number>
+                        label={tl("parentGroup")}
+                        placeholder={tl("selectAGroup")}
+                        options={groups.map((group) => ({ value: group.id, label: group.title, keywords: [group.primaryCode] }))}
+                        value={typeof field.value === "number" ? field.value : null}
+                        onChange={field.onChange}
+                        error={errors.parentId?.message}
+                      />
                     )}
-                  </div>
+                  />
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField

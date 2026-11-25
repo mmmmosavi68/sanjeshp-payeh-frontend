@@ -3,7 +3,7 @@ import { isIP } from "node:net";
 import type { NextRequest, NextResponse } from "next/server";
 
 import type { ClientContext } from "@/lib/api/backend";
-import { ApiStatus } from "@/lib/api/errors";
+import { ApiStatus, GenericErrorCode } from "@/lib/api/errors";
 import { COOKIE, CSRF_HEADER } from "@/lib/auth/cookie-names";
 import { env } from "@/lib/env.server";
 import { isSameOrigin } from "@/lib/security/origin";
@@ -16,13 +16,13 @@ export const MAX_QUERY = 1024;
 
 /** Origin + CSRF double-submit برای همه‌ی متدهای تغییردهنده. */
 export function checkMutationGuards(request: NextRequest): NextResponse | null {
-  if (!isSameOrigin(request)) return fail(403, ApiStatus.Forbidden, "Forbidden");
+  if (!isSameOrigin(request)) return fail(403, ApiStatus.Forbidden, "Forbidden", GenericErrorCode.Forbidden);
 
   const cookieToken = request.cookies.get(COOKIE.csrf)?.value ?? "";
   const headerToken = request.headers.get(CSRF_HEADER) ?? "";
 
   if (!cookieToken || !safeEqual(cookieToken, headerToken)) {
-    return fail(403, ApiStatus.Forbidden, "Forbidden");
+    return fail(403, ApiStatus.Forbidden, "Forbidden", GenericErrorCode.Forbidden);
   }
   return null;
 }
@@ -31,7 +31,7 @@ type BodyResult = { body?: string; error?: NextResponse };
 
 /** بدنه را به‌صورت stream می‌خواند و بالای MAX_BODY قطع می‌کند (حتی بدون Content-Length). */
 export async function readJsonBody(request: NextRequest): Promise<BodyResult> {
-  const tooLarge = () => ({ error: fail(413, ApiStatus.BadRequest, "Payload too large") });
+  const tooLarge = () => ({ error: fail(413, ApiStatus.BadRequest, "Payload too large", GenericErrorCode.ValidationFailed) });
 
   const declared = Number(request.headers.get("content-length") ?? "0");
   if (Number.isFinite(declared) && declared > MAX_BODY) return tooLarge();
@@ -58,7 +58,7 @@ export async function readJsonBody(request: NextRequest): Promise<BodyResult> {
   const text = new TextDecoder().decode(Buffer.concat(chunks));
 
   if (!request.headers.get("content-type")?.includes("application/json")) {
-    return { error: fail(415, ApiStatus.BadRequest, "Unsupported media type") };
+    return { error: fail(415, ApiStatus.BadRequest, "Unsupported media type", GenericErrorCode.ValidationFailed) };
   }
   return { body: text };
 }

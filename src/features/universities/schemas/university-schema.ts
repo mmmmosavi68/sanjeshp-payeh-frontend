@@ -1,55 +1,28 @@
-
 import { z } from "zod";
+
+type Translate = (key: string) => string;
 
 const nullablePositiveInteger = z.preprocess(
   (value) => {
-    if (
-      value === "" ||
-      value === undefined ||
-      value === null ||
-      (typeof value === "number" && Number.isNaN(value))
-    ) {
-      return null;
-    }
-
+    if (value === "" || value === undefined || value === null || (typeof value === "number" && Number.isNaN(value))) return null;
     return Number(value);
   },
   z.number().int().positive().nullable(),
 );
 
-export const universitySchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, "عنوان دانشگاه الزامی است.")
-    .max(200, "عنوان دانشگاه نباید بیشتر از ۲۰۰ کاراکتر باشد."),
+/** `t` is `useTranslations("validation.universities")`. */
+export function createUniversitySchema(t: Translate) {
+  return z.object({
+    title: z.string().trim().min(1, t("titleRequired")).max(200, t("titleMax")),
+    /** CodeKey (primaryCode:subCode) of the university type. */
+    universityTypeKey: z.string().min(1, t("typeRequired")),
+    region: z.preprocess((value) => Number(value), z.number().int().min(1, t("regionRange")).max(11, t("regionRange"))),
+    capacityApproved: z.preprocess((value) => Number(value), z.number().int().min(0, t("capacityMin"))),
+    parentUniversityId: nullablePositiveInteger,
+    isActive: z.boolean(),
+  });
+}
 
-  universityTypeId: z.preprocess(
-    (value) => Number(value),
-    z.number().int().positive("انتخاب نوع دانشگاه الزامی است."),
-  ),
-
-  region: z.preprocess(
-    (value) => Number(value),
-    z
-      .number()
-      .int()
-      .min(1, "منطقه باید بین ۱ تا ۱۱ باشد.")
-      .max(11, "منطقه باید بین ۱ تا ۱۱ باشد."),
-  ),
-
-  capacityApproved: z.preprocess(
-    (value) => Number(value),
-    z
-      .number()
-      .int()
-      .min(0, "ظرفیت مصوب نمی‌تواند منفی باشد."),
-  ),
-
-  parentUniversityId: nullablePositiveInteger,
-
-  isActive: z.boolean(),
-});
-
-export type UniversityFormInput = z.input<typeof universitySchema>;
-export type UniversityFormValues = z.output<typeof universitySchema>;
+type UniversitySchema = ReturnType<typeof createUniversitySchema>;
+export type UniversityFormInput = z.input<UniversitySchema>;
+export type UniversityFormValues = z.output<UniversitySchema>;

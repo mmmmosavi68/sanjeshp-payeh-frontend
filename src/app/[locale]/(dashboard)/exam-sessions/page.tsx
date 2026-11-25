@@ -1,5 +1,6 @@
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { useState } from "react";
 import { CalendarClock, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ import { useFormatters } from "@/lib/format";
 export default function ExamSessionsPage() {
   const { num, date } = useFormatters();
   const tl = useTranslations("screens.examSessions.page");
+  const { errorText } = useApiError();
   const [filters, setFilters] = useState<ExamSessionFilters>({});
   const [searchText, setSearchText] = useState("");
 
@@ -74,9 +76,7 @@ export default function ExamSessionsPage() {
       reload();
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : tl("couldnTDeleteTheExam"),
+        errorText(error, tl("couldnTDeleteTheExam")),
       );
     }
   }

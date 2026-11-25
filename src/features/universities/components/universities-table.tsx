@@ -1,116 +1,81 @@
-
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Building2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
+import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import { IconButton } from "@/components/shared/icon-button";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Can } from "@/features/permissions/use-permission";
-
-import type { UniversityDto } from "../types";
-import { useTranslations } from "next-intl";
 import { useFormatters } from "@/lib/format";
 
-type UniversitiesTableProps = {
-  universities: UniversityDto[];
+import type { UniversityDto } from "../types";
+
+type Props = {
+  rows: UniversityDto[] | undefined;
+  loading: boolean;
+  failed: boolean;
+  toolbar: ReactNode;
+  search: { value: string; onChange: (value: string) => void };
+  onRetry: () => void;
+  onCreate: () => void;
   onEdit: (university: UniversityDto) => void;
   onDelete: (university: UniversityDto) => void;
 };
 
-export function UniversitiesTable({
-  universities,
-  onEdit,
-  onDelete,
-}: UniversitiesTableProps) {
-  const { num, date } = useFormatters();
-  const tl = useTranslations("screens.universities.universitiesTable");
+export function UniversitiesTable({ rows, loading, failed, toolbar, search, onRetry, onCreate, onEdit, onDelete }: Props) {
+  const tl = useTranslations("screens.universities.page");
+  const tt = useTranslations("screens.universities.universitiesTable");
+  const { num } = useFormatters();
+
+  const columns: DataTableColumn<UniversityDto>[] = [
+    { id: "title", header: tt("universityName"), sortValue: (u) => u.title, cell: (u) => <span className="font-medium">{u.title}</span> },
+    { id: "type", header: tt("universityType"), hideOnMobile: true, sortValue: (u) => u.universityTypeTitle, cell: (u) => u.universityTypeTitle || "—" },
+    { id: "region", header: tt("region"), hideOnMobile: true, sortValue: (u) => u.region, cell: (u) => `${tt("region")} ${num(u.region)}` },
+    { id: "capacity", header: tt("approvedCapacity"), hideOnMobile: true, sortValue: (u) => u.capacityApproved, cell: (u) => num(u.capacityApproved) },
+    { id: "parent", header: tt("parentUniversity"), hideOnMobile: true, sortValue: (u) => u.parentUniversityTitle, cell: (u) => u.parentUniversityTitle || "—" },
+    { id: "status", header: tt("status"), cell: (u) => <StatusBadge active={u.isActive} /> },
+  ];
+
   return (
-    <div className="overflow-hidden rounded-lg border bg-card">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[850px] text-sm">
-          <thead className="border-b bg-muted/40">
-            <tr className="text-right text-muted-foreground">
-              <th className="px-4 py-3 font-medium">{tl("universityName")}</th>
-              <th className="px-4 py-3 font-medium">{tl("universityType")}</th>
-              <th className="px-4 py-3 font-medium">{tl("region")}</th>
-              <th className="px-4 py-3 font-medium">{tl("approvedCapacity")}</th>
-              <th className="px-4 py-3 font-medium">{tl("parentUniversity")}</th>
-              <th className="px-4 py-3 font-medium">{tl("status")}</th>
-              <th className="px-4 py-3 text-center font-medium">{tl("actions")}</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y">
-            {universities.map((university) => (
-              <tr
-                key={university.id}
-                className="transition-colors hover:bg-muted/30"
-              >
-                <td className="px-4 py-3 font-medium">
-                  {university.title}
-                </td>
-
-                <td className="px-4 py-3">
-                  {university.universityTypeTitle || "—"}
-                </td>
-
-                <td className="px-4 py-3">
-                  {tl("region")} {university.region}
-                </td>
-
-                <td className="px-4 py-3 tabular-nums">
-                  {num(university.capacityApproved)}
-                </td>
-
-                <td className="px-4 py-3">
-                  {university.parentUniversityTitle || "—"}
-                </td>
-
-                <td className="px-4 py-3">
-                  {university.isActive ? (
-                    <span className="inline-flex rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-                      {tl("active")}
-                    </span>
-                  ) : (
-                    <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                      {tl("inactive")}
-                    </span>
-                  )}
-                </td>
-
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-center gap-1">
-                    <Can controller="Universities" action="Update">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-8"
-                        title={tl("edit")}
-                        onClick={() => onEdit(university)}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                    </Can>
-
-                    <Can controller="Universities" action="Delete">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-destructive hover:text-destructive"
-                        title={tl("delete")}
-                        onClick={() => onDelete(university)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </Can>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <DataTable
+      columns={columns}
+      rows={rows}
+      getRowId={(u) => u.id}
+      caption={tl("universityManagement")}
+      loading={loading}
+      failed={failed}
+      errorTitle={tl("couldnTLoadTheUniversities")}
+      errorDescription={tl("couldnTReachTheServer")}
+      onRetry={onRetry}
+      serverSearch={search}
+      searchPlaceholder={tl("searchByUniversityName")}
+      toolbar={toolbar}
+      empty={{
+        icon: <Building2 className="size-5" aria-hidden />,
+        title: tl("noUniversitiesFound"),
+        description: tl("noUniversitiesMatchTheCurrent"),
+        action: (
+          <Can controller="Universities" action="Create">
+            <Button onClick={onCreate}>
+              <Plus className="size-4" aria-hidden />
+              {tl("addNewUniversity")}
+            </Button>
+          </Can>
+        ),
+      }}
+      actions={(u) => (
+        <>
+          <Can controller="Universities" action="Update">
+            <IconButton label={tt("edit")} icon={<Pencil className="size-4" aria-hidden />} onClick={() => onEdit(u)} />
+          </Can>
+          <Can controller="Universities" action="Delete">
+            <IconButton label={tt("delete")} icon={<Trash2 className="size-4 text-destructive" aria-hidden />} onClick={() => onDelete(u)} />
+          </Can>
+        </>
+      )}
+    />
   );
 }

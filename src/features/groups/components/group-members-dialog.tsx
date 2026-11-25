@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -62,6 +63,7 @@ export function GroupMembersDialog({
   group,
 }: GroupMembersDialogProps) {
   const tl = useTranslations("screens.groups.groupMembersDialog");
+  const { errorText } = useApiError();
   const [members, setMembers] = useState<GroupMemberDto[]>([]);
 
   const [membersLoading, setMembersLoading] = useState(false);
@@ -294,9 +296,7 @@ export function GroupMembersDialog({
       await reloadMembers();
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : tl("couldnTAddTheSelected"),
+        errorText(error, tl("couldnTAddTheSelected")),
       );
     } finally {
       setAdding(false);
@@ -329,9 +329,7 @@ export function GroupMembersDialog({
       await reloadMembers();
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : tl("couldnTRemoveTheSelected"),
+        errorText(error, tl("couldnTRemoveTheSelected")),
       );
     } finally {
       setRemoving(false);

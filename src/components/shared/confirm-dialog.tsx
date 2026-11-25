@@ -3,7 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { toast } from "sonner";
+import { useApiError } from "@/hooks/use-api-error";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +32,7 @@ export function ConfirmDialog({
   onConfirm,
 }: ConfirmDialogProps) {
   const t = useTranslations("common");
+  const { notifyError } = useApiError();
   const [pending, setPending] = useState(false);
 
   async function handleConfirm() {
@@ -39,8 +40,8 @@ export function ConfirmDialog({
     try {
       await onConfirm();
       onOpenChange(false);
-    } catch {
-      toast.error(t("operationFailed"));
+    } catch (error) {
+      notifyError(error);
     } finally {
       setPending(false);
     }

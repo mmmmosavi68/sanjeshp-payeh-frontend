@@ -1,9 +1,10 @@
 
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -20,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { createGroup, updateGroup } from "../api";
-import { groupSchema, type GroupFormInput } from "../schemas/group-schema";
+import { createGroupSchema, type GroupFormInput } from "../schemas/group-schema";
 import type { GroupDto } from "../types";
 import { useTranslations } from "next-intl";
 
@@ -38,6 +39,9 @@ export function GroupFormDialog({
   onSaved,
 }: GroupFormDialogProps) {
   const tl = useTranslations("screens.groups.groupFormDialog");
+  const { errorText } = useApiError();
+  const tv = useTranslations("validation.groups");
+  const schema = useMemo(() => createGroupSchema(tv), [tv]);
   const editing = group !== null;
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -49,7 +53,7 @@ export function GroupFormDialog({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<GroupFormInput>({
-    resolver: zodResolver(groupSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       groupName: "",
       isActive: true,
@@ -87,9 +91,7 @@ export function GroupFormDialog({
       onSaved();
     } catch (error) {
       setFormError(
-        error instanceof Error
-          ? error.message
-          : tl("couldnTSaveTheGroup"),
+        errorText(error, tl("couldnTSaveTheGroup")),
       );
     }
   }

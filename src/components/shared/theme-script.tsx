@@ -1,4 +1,10 @@
-import { DEFAULT_PALETTE, PALETTE_IDS, PALETTE_STORAGE_KEY } from "@/lib/palettes";
+import Script from "next/script";
+
+import {
+  DEFAULT_PALETTE,
+  PALETTE_IDS,
+  PALETTE_STORAGE_KEY,
+} from "@/lib/palettes";
 
 // محتوای ثابت و بدون ورودی کاربر؛ با nonce اجرا می‌شود.
 const script = `(function(){try{var r=document.documentElement;var t=localStorage.getItem("theme");var d=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var ids=${JSON.stringify(
@@ -9,8 +15,9 @@ const script = `(function(){try{var r=document.documentElement;var t=localStorag
 
 export function ThemeScript({ nonce }: { nonce?: string }) {
   return (
-    <script
+    <Script
       id="theme-initializer"
+      strategy="beforeInteractive"
       nonce={nonce}
       dangerouslySetInnerHTML={{ __html: script }}
     />

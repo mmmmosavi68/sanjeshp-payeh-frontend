@@ -1,5 +1,6 @@
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -10,6 +11,10 @@ import { FormField } from "@/components/shared/form-field";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { SelectField } from "@/components/shared/select-field";
+import { FormAlert } from "@/components/shared/form-alert";
+import { CODE_GROUPS } from "@/constants/codes";
+import { useCodeOptions } from "@/features/codes/hooks/use-code-options";
 import {
   Sheet,
   SheetContent,
@@ -21,26 +26,26 @@ import {
 
 import { createUniversity, updateUniversity } from "../api";
 import {
-  universitySchema,
+  createUniversitySchema,
   type UniversityFormInput,
   type UniversityFormValues,
 } from "../schemas/university-schema";
 import type { UniversityDto } from "../types";
-import type { UniversityTypeOption } from "../options";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useFormatters } from "@/lib/format";
 
 type UniversityFormSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   university: UniversityDto | null;
   universities: UniversityDto[];
-  universityTypes: UniversityTypeOption[];
   onSaved: () => void;
 };
 
 const emptyValues: UniversityFormInput = {
   title: "",
-  universityTypeId: 0,
+  universityTypeKey: "",
   region: 1,
   capacityApproved: 0,
   parentUniversityId: null,
@@ -52,10 +57,14 @@ export function UniversityFormSheet({
   onOpenChange,
   university,
   universities,
-  universityTypes,
   onSaved,
 }: UniversityFormSheetProps) {
   const tl = useTranslations("screens.universities.universityFormSheet");
+  const { errorText } = useApiError();
+  const { num } = useFormatters();
+  const tv = useTranslations("validation.universities");
+  const schema = useMemo(() => createUniversitySchema(tv), [tv]);
+  const universityTypes = useCodeOptions(CODE_GROUPS.universityType);
   const isEdit = university !== null;
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -66,7 +75,7 @@ export function UniversityFormSheet({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<UniversityFormInput, unknown, UniversityFormValues>({
-    resolver: zodResolver(universitySchema),
+    resolver: zodResolver(schema),
     defaultValues: emptyValues,
   });
 
@@ -78,7 +87,7 @@ export function UniversityFormSheet({
     if (university) {
       reset({
         title: university.title,
-        universityTypeId: university.universityTypeId,
+        universityTypeKey: university.universityTypeKey ?? "",
         region: university.region,
         capacityApproved: university.capacityApproved,
         parentUniversityId: university.parentUniversityId,
@@ -94,7 +103,7 @@ export function UniversityFormSheet({
 
     const payload = {
       title: values.title.trim(),
-      universityTypeId: values.universityTypeId,
+      universityTypeKey: values.universityTypeKey,
       region: values.region,
       capacityApproved: values.capacityApproved,
       parentUniversityId: values.parentUniversityId,
@@ -118,9 +127,7 @@ export function UniversityFormSheet({
       onSaved();
     } catch (error) {
       setFormError(
-        error instanceof Error
-          ? error.message
-          : tl("couldnTSaveTheUniversity"),
+        errorText(error, tl("couldnTSaveTheUniversity")),
       );
     }
   }
@@ -148,16 +155,9 @@ export function UniversityFormSheet({
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3">
-            {formError && (
-              <div
-                role="alert"
-                className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-              >
-                {formError}
-              </div>
-            )}
+            <FormAlert message={formError} />
 
-            {universityTypes.length === 0 && (
+            {!universityTypes.loading && universityTypes.options.length === 0 && (
               <div
                 role="alert"
                 className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm"
@@ -178,59 +178,36 @@ export function UniversityFormSheet({
                 {...register("title")}
               />
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="university-type">{tl("universityType")}</Label>
-
-                <select
-                  id="university-type"
-                  className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                  disabled={universityTypes.length === 0}
-                  {...register("universityTypeId", {
-                    setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                  })}
-                >
-                  <option value={0}>{tl("selectUniversityType")}</option>
-
-                  {universityTypes.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-
-                {errors.universityTypeId?.message && (
-                  <p className="text-xs text-destructive">
-                    {errors.universityTypeId.message}
-                  </p>
+              <Controller
+                control={control}
+                name="universityTypeKey"
+                render={({ field }) => (
+                  <SelectField
+                    label={tl("universityType")}
+                    placeholder={tl("selectUniversityType")}
+                    options={universityTypes.options}
+                    loading={universityTypes.loading}
+                    value={field.value || null}
+                    onChange={field.onChange}
+                    error={errors.universityTypeKey?.message}
+                  />
                 )}
-              </div>
+              />
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="university-region">{tl("region")}</Label>
-
-                  <select
-                    id="university-region"
-                    className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                    {...register("region", {
-                      setValueAs: (value) => Number(value),
-                    })}
-                  >
-                    {Array.from({ length: 11 }, (_, index) => index + 1).map(
-                      (region) => (
-                        <option key={region} value={region}>
-                          {tl("region")} {region}
-                        </option>
-                      ),
-                    )}
-                  </select>
-
-                  {errors.region?.message && (
-                    <p className="text-xs text-destructive">
-                      {errors.region.message}
-                    </p>
+                <Controller
+                  control={control}
+                  name="region"
+                  render={({ field }) => (
+                    <SelectField<number>
+                      label={tl("region")}
+                      options={Array.from({ length: 11 }, (_, i) => i + 1).map((r) => ({ value: r, label: `${tl("region")} ${num(r)}` }))}
+                      value={Number(field.value) || null}
+                      onChange={field.onChange}
+                      error={errors.region?.message}
+                    />
                   )}
-                </div>
+                />
 
                 <FormField
                   id="university-capacity"
@@ -246,32 +223,21 @@ export function UniversityFormSheet({
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="university-parent">{tl("parentUniversity")}</Label>
-
-                <select
-                  id="university-parent"
-                  className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                  {...register("parentUniversityId", {
-                    setValueAs: (value) =>
-                      value === "" ? null : Number(value),
-                  })}
-                >
-                  <option value="">{tl("noParentUniversity")}</option>
-
-                  {parentOptions.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-
-                {errors.parentUniversityId?.message && (
-                  <p className="text-xs text-destructive">
-                    {errors.parentUniversityId.message}
-                  </p>
+              <Controller
+                control={control}
+                name="parentUniversityId"
+                render={({ field }) => (
+                  <SelectField<number>
+                    label={tl("parentUniversity")}
+                    placeholder={tl("noParentUniversity")}
+                    options={parentOptions.map((item) => ({ value: item.id, label: item.title }))}
+                    value={typeof field.value === "number" ? field.value : null}
+                    onChange={field.onChange}
+                    onClear={() => field.onChange(null)}
+                    error={errors.parentUniversityId?.message}
+                  />
                 )}
-              </div>
+              />
 
               {isEdit && (
                 <Controller
@@ -313,7 +279,7 @@ export function UniversityFormSheet({
 
               <Button
                 type="submit"
-                disabled={isSubmitting || universityTypes.length === 0}
+                disabled={isSubmitting || (!universityTypes.loading && universityTypes.options.length === 0)}
               >
                 {isSubmitting && <Loader2 className="size-4 animate-spin" />}
 

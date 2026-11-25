@@ -1,5 +1,6 @@
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -91,6 +92,7 @@ export function ExamSessionFormSheet({
   onSaved,
 }: ExamSessionFormSheetProps) {
   const tl = useTranslations("screens.examSessions.examSessionFormSheet");
+  const { errorText } = useApiError();
   const isEdit = examSession !== null;
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -150,9 +152,7 @@ export function ExamSessionFormSheet({
       onSaved();
     } catch (error) {
       setFormError(
-        error instanceof Error
-          ? error.message
-          : tl("couldnTSaveTheExam"),
+        errorText(error, tl("couldnTSaveTheExam")),
       );
     }
   }

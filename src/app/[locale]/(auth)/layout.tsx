@@ -1,6 +1,5 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import { Brand } from "@/components/layout/brand";
-import { Company } from "@/components/layout/company";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 

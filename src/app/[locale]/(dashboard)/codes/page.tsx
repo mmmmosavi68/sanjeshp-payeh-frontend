@@ -1,185 +1,157 @@
-
 "use client";
 
-import { useState } from "react";
-import { Database, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { Database, Pencil, Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/layout/page-header";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState, ErrorState } from "@/components/shared/data-states";
-import { useRemoteData } from "@/hooks/use-remote-data";
-
-import { deleteCode, listCodes } from "@/features/codes/api";
-import type { CodeDto } from "@/features/codes/types";
-
-import { CodesTree } from "@/features/codes/components/codes-tree";
+import { IconButton } from "@/components/shared/icon-button";
+import { LoadingState } from "@/components/shared/loading-state";
+import { SearchableSelect } from "@/components/shared/searchable-select";
+import { Button } from "@/components/ui/button";
 import { CodeFormSheet } from "@/features/codes/components/code-form-sheet";
-import { useTranslations } from "next-intl";
+import { CodesItemsTable } from "@/features/codes/components/codes-items-table";
+import { useCodesPage } from "@/features/codes/hooks/use-codes-page";
+import { useFormatters } from "@/lib/format";
 
 export default function CodesPage() {
   const tl = useTranslations("screens.codes.page");
-  const {
-    data,
-    loading,
-    failed,
-    reload,
-  } = useRemoteData("codes", listCodes);
-
-  const codes = data ?? [];
-
-const root = codes.find(
-  (code) =>
-    code.parentId == null &&
-    code.primaryCode === 0 &&
-    code.subCode === 0,
-);
-
-  const groups = root
-    ? codes.filter(
-        (code) =>
-          code.parentId === root.id &&
-          code.subCode === 0,
-      )
-    : [];
-
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingCode, setEditingCode] = useState<CodeDto | null>(null);
-  const [defaultParentId, setDefaultParentId] = useState<number | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<CodeDto | null>(null);
-
-  function handleCreateGroup() {
-    if (!root) return;
-
-    setEditingCode(null);
-    setDefaultParentId(root.id);
-    setFormOpen(true);
-  }
-
-  function handleCreateItem(group: CodeDto) {
-    setEditingCode(null);
-    setDefaultParentId(group.id);
-    setFormOpen(true);
-  }
-
-  function handleEdit(code: CodeDto) {
-    setEditingCode(code);
-    setDefaultParentId(null);
-    setFormOpen(true);
-  }
-
-  async function handleDelete() {
-    if (!deleteTarget) return;
-
-    await deleteCode(deleteTarget.id);
-
-    toast.success(
-      deleteTarget.subCode === 0
-        ? tl("groupDeletedSuccessfully")
-        : tl("itemDeletedSuccessfully"),
-    );
-
-    setDeleteTarget(null);
-    reload();
-  }
+  const { num } = useFormatters();
+  const page = useCodesPage();
+  const { root, groups, selectedGroup } = page;
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">
-            {tl("baseCodeManagement")}
-          </h1>
-
-          <p className="text-sm text-muted-foreground">
-            {tl("manageTheSystemSBase")}
-          </p>
-        </div>
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <PageHeader
+          title={tl("baseCodeManagement")}
+          description={tl("manageTheSystemSBase")}
+        />
+        <Button
+          type="button"
+          size="sm"
+          onClick={page.createGroup}
+          disabled={!root}
+        >
+          <Plus className="size-3.5" aria-hidden />
+          {tl("addGroup")}
+        </Button>
       </div>
 
-      {loading && (
-        <div className="rounded-lg border bg-card px-4 py-16 text-center">
-          <div className="mx-auto mb-3 size-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      {page.loading ? (
+        <LoadingState
+          label={tl("loadingCodes")}
+          className="rounded-lg border bg-card"
+        />
+      ) : null}
 
-          <p className="text-sm text-muted-foreground">
-            {tl("loadingCodes")}
-          </p>
-        </div>
-      )}
-
-      {!loading && failed && (
+      {!page.loading && page.failed ? (
         <ErrorState
           title={tl("couldnTLoadTheCodes")}
           description={tl("couldnTReachTheServer")}
-          onRetry={reload}
+          onRetry={page.reload}
         />
-      )}
+      ) : null}
 
-      {!loading && !failed && !root && (
+      {!page.loading && !page.failed && !root ? (
         <ErrorState
           title={tl("rootCodeStructureNotFound")}
           description={tl("theRootRecordOfThe")}
-          onRetry={reload}
+          onRetry={page.reload}
         />
-      )}
+      ) : null}
 
-      {!loading && !failed && root && groups.length > 0 && (
-        <CodesTree
-          root={root}
-          groups={groups}
-          codes={codes}
-          onCreateGroup={handleCreateGroup}
-          onCreateItem={handleCreateItem}
-          onEdit={handleEdit}
-          onDelete={setDeleteTarget}
-        />
-      )}
+      {!page.loading && !page.failed && root ? (
+        groups.length === 0 || !selectedGroup ? (
+          <div className="rounded-lg border bg-card">
+            <EmptyState
+              icon={<Database className="size-5" aria-hidden />}
+              title={tl("noGroupsYet")}
+              description={tl("createTheFirstBaseInformation")}
+              action={
+                <Button size="sm" onClick={page.createGroup}>
+                  <Plus className="size-3.5" aria-hidden />
+                  {tl("createTheFirstGroup")}
+                </Button>
+              }
+            />
+          </div>
+        ) : (
+          <CodesItemsTable
+            // Reset search/sort/page state when switching groups.
+            key={selectedGroup.id}
+            items={page.items}
+            groupTitle={selectedGroup.title}
+            onCreate={page.createItem}
+            onEdit={page.edit}
+            onDelete={page.setDeleteTarget}
+            toolbar={
+              <>
+                <SearchableSelect<number>
+                  className="w-full sm:w-64"
+                  aria-label={tl("groupSelectLabel")}
+                  placeholder={tl("selectGroupPlaceholder")}
+                  searchPlaceholder={tl("searchGroups")}
+                  options={groups.map((g) => ({
+                    value: g.id,
+                    label: `${num(g.primaryCode ?? 0)} - ${g.title}`,
+                    keywords: [g.primaryCode],
+                  }))}
+                  value={selectedGroup.id}
+                  onChange={page.selectGroup}
+                />
+                <IconButton
+                  label={tl("editGroupTooltip")}
+                  icon={<Pencil className="size-3.5" aria-hidden />}
+                  onClick={() => page.edit(selectedGroup)}
+                />
+                <IconButton
+                  label={tl("deleteGroupTooltip")}
+                  icon={
+                    <Trash2 className="size-3.5 text-destructive" aria-hidden />
+                  }
+                  onClick={() => page.setDeleteTarget(selectedGroup)}
+                />
+                <Button type="button" size="sm" onClick={page.createItem}>
+                  <Plus className="size-3.5" aria-hidden />
+                  {tl("addItem")}
+                </Button>
+              </>
+            }
+          />
+        )
+      ) : null}
 
-      {!loading && !failed && root && groups.length === 0 && (
-        <EmptyState
-          icon={<Database className="size-5" />}
-          title={tl("noGroupsYet")}
-          description={tl("createTheFirstBaseInformation")}
-          action={
-            <Button
-              onClick={handleCreateGroup}
-            >
-              <Plus className="size-4" />
-              {tl("createTheFirstGroup")}
-            </Button>
-          }
-        />
-      )}
-
-      {root && (
+      {root ? (
         <CodeFormSheet
-          open={formOpen}
-          onOpenChange={setFormOpen}
-          code={editingCode}
+          open={page.formOpen}
+          onOpenChange={page.setFormOpen}
+          code={page.editingCode}
           rootId={root.id}
           groups={groups}
-          defaultParentId={defaultParentId}
-          onSaved={reload}
+          defaultParentId={page.defaultParentId}
+          onSaved={page.reload}
         />
-      )}
+      ) : null}
 
       <ConfirmDialog
-        open={deleteTarget !== null}
+        open={page.deleteTarget !== null}
         onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
+          if (!open) page.setDeleteTarget(null);
         }}
         title={
-          deleteTarget?.subCode === 0
+          page.deleteTarget?.subCode === 0
             ? tl("deleteGroup")
             : tl("deleteItem")
         }
         description={
-          deleteTarget
-            ? tl("areYouSureYouWant", { p0: deleteTarget.title })
+          page.deleteTarget
+            ? tl("areYouSureYouWant", { p0: page.deleteTarget.title })
             : ""
         }
         confirmLabel={tl("delete")}
-        onConfirm={handleDelete}
+        onConfirm={page.confirmDelete}
       />
     </div>
   );

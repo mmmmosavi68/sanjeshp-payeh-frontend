@@ -2,20 +2,20 @@ import "server-only";
 import { NextResponse } from "next/server";
 
 import type { BackendResult } from "@/lib/api/backend";
-import { ApiStatus } from "@/lib/api/errors";
+import { ApiStatus, GenericErrorCode } from "@/lib/api/errors";
 import { clearSessionCookies } from "@/lib/auth/cookies";
 
 export const NO_STORE = { "Cache-Control": "no-store" };
 
-export function fail(httpStatus: number, statusCode: number, message: string) {
+export function fail(httpStatus: number, statusCode: number, message: string, errorCode?: string) {
   return NextResponse.json(
-    { isSuccess: false, statusCode, message },
+    { isSuccess: false, statusCode, message, ...(errorCode ? { errorCode } : {}) },
     { status: httpStatus, headers: NO_STORE },
   );
 }
 
 export function unauthorized() {
-  const response = fail(401, ApiStatus.UnAuthorized, "Unauthorized");
+  const response = fail(401, ApiStatus.UnAuthorized, "Unauthorized", GenericErrorCode.Unauthorized);
   clearSessionCookies(response);
   return response;
 }
@@ -30,7 +30,7 @@ export function loggedOut() {
 }
 
 export function badGateway() {
-  return fail(502, ApiStatus.ServerError, "The server is unavailable");
+  return fail(502, ApiStatus.ServerError, "The server is unavailable", GenericErrorCode.NetworkError);
 }
 
 /**
@@ -48,7 +48,7 @@ export function relay(result: BackendResult): NextResponse {
 
   if (result.status >= 500) {
     return NextResponse.json(
-      { isSuccess: false, statusCode: ApiStatus.ServerError, message: "Server error" },
+      { isSuccess: false, statusCode: ApiStatus.ServerError, message: "Server error", errorCode: GenericErrorCode.InternalError },
       { status: result.status, headers },
     );
   }

@@ -23,7 +23,10 @@ import type {
   ExamSessionOption,
 } from "../types";
 
-import type { ExamCodeOption } from "../options";
+import { CODE_GROUPS } from "@/constants/codes";
+import { SelectField } from "@/components/shared/select-field";
+import { FormAlert } from "@/components/shared/form-alert";
+import { useCodeOptions } from "@/features/codes/hooks/use-code-options";
 import { useTranslations } from "next-intl";
 import { useFormatters } from "@/lib/format";
 
@@ -32,16 +35,14 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   exam: ExamDto | null;
   sessions: ExamSessionOption[];
-  examTypes: ExamCodeOption[];
-  examModes: ExamCodeOption[];
   onSaved: () => void;
 };
 
 type FormValues = {
   title: string;
   examSessionId: string;
-  examTypeId: number;
-  examModeId: number;
+  examTypeKey: string;
+  examModeKey: string;
   registrationStartDate: string;
   registrationEndDate: string;
   editStartDate: string;
@@ -53,8 +54,8 @@ type FormValues = {
 const emptyValues: FormValues = {
   title: "",
   examSessionId: "",
-  examTypeId: 0,
-  examModeId: 0,
+  examTypeKey: "",
+  examModeKey: "",
   registrationStartDate: "",
   registrationEndDate: "",
   editStartDate: "",
@@ -77,10 +78,10 @@ export function ExamFormSheet({
   onOpenChange,
   exam,
   sessions,
-  examTypes,
-  examModes,
   onSaved,
 }: Props) {
+  const examTypes = useCodeOptions(CODE_GROUPS.examType);
+  const examModes = useCodeOptions(CODE_GROUPS.examMode);
   const { num, date } = useFormatters();
   const tl = useTranslations("screens.exams.examFormSheet");
   const isEdit = exam !== null;
@@ -102,8 +103,8 @@ export function ExamFormSheet({
     setValues({
       title: exam.title,
       examSessionId: exam.examSessionId,
-      examTypeId: exam.examTypeId,
-      examModeId: exam.examModeId,
+      examTypeKey: exam.examTypeKey ?? "",
+      examModeKey: exam.examModeKey ?? "",
       registrationStartDate: toLocalInput(exam.registrationStartDate),
       registrationEndDate: toLocalInput(exam.registrationEndDate),
       editStartDate: toLocalInput(exam.editStartDate),
@@ -134,7 +135,7 @@ export function ExamFormSheet({
       return;
     }
 
-    if (!values.examTypeId || !values.examModeId) {
+    if (!values.examTypeKey || !values.examModeKey) {
       setError(tl("selectTheExamTypeAnd"));
       return;
     }
@@ -169,8 +170,8 @@ export function ExamFormSheet({
     const payload: CreateExamDto = {
       title: values.title.trim(),
       examSessionId: values.examSessionId,
-      examTypeId: values.examTypeId,
-      examModeId: values.examModeId,
+      examTypeKey: values.examTypeKey,
+      examModeKey: values.examModeKey,
       registrationStartDate: new Date(values.registrationStartDate).toISOString(),
       registrationEndDate: new Date(values.registrationEndDate).toISOString(),
       editStartDate: values.editStartDate
@@ -210,7 +211,7 @@ export function ExamFormSheet({
   }
 
   const sessionOptionsReady = sessions.length > 0;
-  const codeOptionsReady = examTypes.length > 0 && examModes.length > 0;
+  const codeOptionsReady = examTypes.loading || examModes.loading || (examTypes.options.length > 0 && examModes.options.length > 0);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -230,14 +231,7 @@ export function ExamFormSheet({
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3">
-            {error && (
-              <div
-                role="alert"
-                className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-              >
-                {error}
-              </div>
-            )}
+            <FormAlert message={error} />
 
             {!sessionOptionsReady && (
               <div className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm">
@@ -264,62 +258,32 @@ export function ExamFormSheet({
               />
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="exam-session" className="text-sm font-medium">
-                    {tl("examSession")}
-                  </label>
-                  <select
-                    id="exam-session"
-                    value={values.examSessionId}
-                    onChange={(event) => setField("examSessionId", event.target.value)}
-                    className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
-                  >
-                    <option value="">{tl("selectASession")}</option>
-                    {sessions.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.title} - {date(new Date(item.examDate))}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <SelectField
+                  label={tl("examSession")}
+                  placeholder={tl("selectASession")}
+                  options={sessions.map((item) => ({ value: item.id, label: `${item.title} - ${date(new Date(item.examDate))}` }))}
+                  value={values.examSessionId || null}
+                  onChange={(value) => setField("examSessionId", value)}
+                />
 
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="exam-type" className="text-sm font-medium">
-                    {tl("examType")}
-                  </label>
-                  <select
-                    id="exam-type"
-                    value={values.examTypeId}
-                    onChange={(event) => setField("examTypeId", Number(event.target.value))}
-                    className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
-                  >
-                    <option value={0}>{tl("selectExamType")}</option>
-                    {examTypes.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <SelectField
+                  label={tl("examType")}
+                  placeholder={tl("selectExamType")}
+                  options={examTypes.options}
+                  loading={examTypes.loading}
+                  value={values.examTypeKey || null}
+                  onChange={(value) => setField("examTypeKey", value)}
+                />
 
-                <div className="flex flex-col gap-2 sm:col-span-2">
-                  <label htmlFor="exam-mode" className="text-sm font-medium">
-                    {tl("deliveryMode")}
-                  </label>
-                  <select
-                    id="exam-mode"
-                    value={values.examModeId}
-                    onChange={(event) => setField("examModeId", Number(event.target.value))}
-                    className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
-                  >
-                    <option value={0}>{tl("selectDeliveryMode")}</option>
-                    {examModes.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <SelectField
+                  className="sm:col-span-2"
+                  label={tl("deliveryMode")}
+                  placeholder={tl("selectDeliveryMode")}
+                  options={examModes.options}
+                  loading={examModes.loading}
+                  value={values.examModeKey || null}
+                  onChange={(value) => setField("examModeKey", value)}
+                />
               </div>
             </section>
 

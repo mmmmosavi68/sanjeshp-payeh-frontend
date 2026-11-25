@@ -55,9 +55,9 @@ export default function ApiTestPage() {
         <Button variant="outline" disabled={busy} onClick={runPost}>{tl("postTest")}</Button>
       </div>
       <div className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-3">
-        <Input type="number" value={form.id} onChange={event => setForm(value => ({ ...value, id: Number(event.target.value) }))} aria-label="Id" />
-        <Input value={form.name} onChange={event => setForm(value => ({ ...value, name: event.target.value }))} aria-label="Name" />
-        <Input value={form.email} onChange={event => setForm(value => ({ ...value, email: event.target.value }))} aria-label="Email" />
+        <Input type="number" value={form.id} onChange={event => setForm(value => ({ ...value, id: Number(event.target.value) }))} aria-label={tl("fieldId")} />
+        <Input value={form.name} onChange={event => setForm(value => ({ ...value, name: event.target.value }))} aria-label={tl("fieldName")} />
+        <Input value={form.email} onChange={event => setForm(value => ({ ...value, email: event.target.value }))} aria-label={tl("fieldEmail")} />
       </div>
       <pre className="overflow-auto rounded-lg border bg-card p-4 text-xs" dir="ltr">
         {result ? JSON.stringify(result, null, 2) : (tl("noResponseYet"))}

@@ -1,6 +1,6 @@
 import { type NextRequest, type NextResponse } from "next/server";
 
-import { ApiStatus } from "@/lib/api/errors";
+import { ApiStatus, GenericErrorCode } from "@/lib/api/errors";
 import { handleAuthed, handlePublic, type CallInput } from "@/lib/bff/handlers";
 import {
   MAX_QUERY,
@@ -23,7 +23,7 @@ async function handle(
   const method = request.method as Method;
 
   const rule = findRule(method, path);
-  if (!rule) return fail(404, ApiStatus.NotFound, "Not found");
+  if (!rule) return fail(404, ApiStatus.NotFound, "Not found", GenericErrorCode.NotFound);
 
   if (method !== "GET") {
     const rejected = checkMutationGuards(request);
@@ -33,7 +33,7 @@ async function handle(
   let search: string | undefined;
   if (method === "GET") {
     search = request.nextUrl.search;
-    if (search.length > MAX_QUERY) return fail(414, ApiStatus.BadRequest, "URI too long");
+    if (search.length > MAX_QUERY) return fail(414, ApiStatus.BadRequest, "URI too long", GenericErrorCode.ValidationFailed);
   }
 
   let body: string | undefined;

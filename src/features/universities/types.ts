@@ -3,6 +3,8 @@ export interface UniversityDto {
   id: number;
   title: string;
   universityTypeId: number;
+  /** primaryCode:subCode */
+  universityTypeKey: string | null;
   universityTypeTitle: string | null;
   region: number;
   capacityApproved: number;
@@ -15,7 +17,8 @@ export interface UniversityDto {
 
 export interface CreateUniversityDto {
   title: string;
-  universityTypeId: number;
+  /** CodeKey (primaryCode:subCode); converted to API fields by the codes adapter. */
+  universityTypeKey: string;
   region: number;
   capacityApproved: number;
   parentUniversityId: number | null;
@@ -27,7 +30,8 @@ export interface UpdateUniversityDto extends CreateUniversityDto {
 
 export interface UniversityFilters {
   search?: string;
-  universityTypeId?: number;
+  /** CodeKey (primaryCode:subCode) */
+  universityTypeKey?: string;
   region?: number;
   parentUniversityId?: number;
   isActive?: boolean;

@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { useEffect, useMemo, useState } from "react";
 import {
   Building2,
@@ -57,6 +58,7 @@ const selectContentProps = {
 export function StudentRegistrationManager() {
   const { num, date } = useFormatters();
   const tl = useTranslations("screens.studentRegistrations.studentRegistrationManager");
+  const { errorText } = useApiError();
   const {
     data: universities,
     loading: universitiesLoading,
@@ -177,9 +179,7 @@ export function StudentRegistrationManager() {
       reloadRegistrations();
     } catch (error) {
       toast.error(
-        error instanceof Error && error.message
-          ? error.message
-          : tl("couldnTDeleteTheRegistration"),
+        errorText(error, tl("couldnTDeleteTheRegistration")),
       );
     } finally {
       setDeletingId(null);

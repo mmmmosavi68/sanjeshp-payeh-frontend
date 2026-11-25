@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { useEffect, useState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -100,6 +101,7 @@ export function StudentRegistrationFormDialog({
   onSaved,
 }: Props) {
   const tl = useTranslations("screens.studentRegistrations.studentRegistrationFormDialog");
+  const { errorText } = useApiError();
   const isEdit = !!registrationId;
 
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -160,9 +162,7 @@ export function StudentRegistrationFormDialog({
       } catch (error) {
         if (!cancelled) {
           toast.error(
-            error instanceof Error && error.message
-              ? error.message
-              : tl("couldnTLoadTheForm"),
+            errorText(error, tl("couldnTLoadTheForm")),
           );
         }
       } finally {
@@ -242,9 +242,7 @@ export function StudentRegistrationFormDialog({
       onOpenChange(false);
     } catch (error) {
       toast.error(
-        error instanceof Error && error.message
-          ? error.message
-          : tl("couldnTSaveTheCandidate"),
+        errorText(error, tl("couldnTSaveTheCandidate")),
       );
     } finally {
       setSaving(false);

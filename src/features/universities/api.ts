@@ -2,18 +2,23 @@
 import { z } from "zod";
 
 import { apiRequest } from "@/lib/api/client";
+import { readCodeKey, toApiCodeFields } from "@/features/codes/adapter";
+import { loadCodes } from "@/features/codes/code-store";
+import type { CodeDto } from "@/features/codes/types";
 
 import type {
   CreateUniversityDto,
   UniversityDto,
   UniversityFilters,
   UpdateUniversityDto,
-} from "./types.ts";
+} from "./types";
 
 const universitySchema = z.object({
   id: z.number(),
   title: z.string(),
   universityTypeId: z.number(),
+  universityTypePrimaryCode: z.number().nullish(),
+  universityTypeSubCode: z.number().nullish(),
   universityTypeTitle: z.string().nullish(),
   region: z.number(),
   capacityApproved: z.number(),
@@ -26,11 +31,13 @@ const universitySchema = z.object({
 
 function toUniversityRecord(
   university: z.infer<typeof universitySchema>,
+  codes: readonly CodeDto[],
 ): UniversityDto {
   return {
     id: university.id,
     title: university.title,
     universityTypeId: university.universityTypeId,
+    universityTypeKey: readCodeKey("universityType", { universityTypeId: university.universityTypeId, universityTypePrimaryCode: university.universityTypePrimaryCode, universityTypeSubCode: university.universityTypeSubCode }, codes),
     universityTypeTitle: university.universityTypeTitle ?? null,
     region: university.region,
     capacityApproved: university.capacityApproved,
@@ -48,10 +55,11 @@ function toUniversityRecord(
 export async function listUniversities(
   filters: UniversityFilters = {},
 ): Promise<UniversityDto[]> {
+  const codes = await loadCodes();
   const universities = await apiRequest("universities", {
     query: {
       search: filters.search,
-      universityTypeId: filters.universityTypeId,
+      ...toApiCodeFields("universityType", filters.universityTypeKey, codes),
       region: filters.region,
       parentUniversityId: filters.parentUniversityId,
       isActive: filters.isActive,
@@ -59,7 +67,7 @@ export async function listUniversities(
     schema: z.array(universitySchema),
   });
 
-  return universities.map(toUniversityRecord);
+  return universities.map((item) => toUniversityRecord(item, codes));
 }
 
 /**
@@ -68,11 +76,9 @@ export async function listUniversities(
 export async function getUniversityById(
   id: number,
 ): Promise<UniversityDto> {
-  const university = await apiRequest(`universities/${id}`, {
-    schema: universitySchema,
-  });
+  const [codes, university] = await Promise.all([loadCodes(), apiRequest(`universities/${id}`, { schema: universitySchema })]);
 
-  return toUniversityRecord(university);
+  return toUniversityRecord(university, codes);
 }
 
 /**
@@ -81,13 +87,15 @@ export async function getUniversityById(
 export async function createUniversity(
   input: CreateUniversityDto,
 ): Promise<UniversityDto> {
+  const codes = await loadCodes();
+  const { universityTypeKey, ...rest } = input;
   const university = await apiRequest("universities", {
     method: "POST",
-    body: input,
+    body: { ...rest, ...toApiCodeFields("universityType", universityTypeKey, codes) },
     schema: universitySchema,
   });
 
-  return toUniversityRecord(university);
+  return toUniversityRecord(university, codes);
 }
 
 /**
@@ -97,13 +105,15 @@ export async function updateUniversity(
   id: number,
   input: UpdateUniversityDto,
 ): Promise<UniversityDto> {
+  const codes = await loadCodes();
+  const { universityTypeKey, ...rest } = input;
   const university = await apiRequest(`universities/${id}`, {
     method: "PUT",
-    body: input,
+    body: { ...rest, ...toApiCodeFields("universityType", universityTypeKey, codes) },
     schema: universitySchema,
   });
 
-  return toUniversityRecord(university);
+  return toUniversityRecord(university, codes);
 }
 
 /**

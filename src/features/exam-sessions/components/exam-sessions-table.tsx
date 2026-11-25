@@ -1,13 +1,15 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { CalendarClock, Pencil, Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
+import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import { IconButton } from "@/components/shared/icon-button";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { Can } from "@/features/permissions/use-permission";
+import { intlTag } from "@/lib/format";
 
 import type { ExamSessionDto } from "../types";
-import { useLocale, useTranslations } from "next-intl";
-import { intlTag } from "@/lib/format";
 
 type ExamSessionsTableProps = {
   examSessions: ExamSessionDto[];
@@ -15,111 +17,44 @@ type ExamSessionsTableProps = {
   onDelete: (item: ExamSessionDto) => void;
 };
 
+/** Date-only API value ("2026-01-31T…") → localized date (Jalali for fa, Gregorian for en). */
 function formatExamDate(value: string, locale: string): string {
-  const date = value.slice(0, 10);
-  const [year, month, day] = date.split("-").map(Number);
-
+  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
   if (!year || !month || !day) return "—";
-
-  return new Intl.DateTimeFormat(intlTag(locale)).format(
-    new Date(year, month - 1, day),
-  );
+  return new Intl.DateTimeFormat(intlTag(locale)).format(new Date(year, month - 1, day));
 }
 
-function formatTime(value: string): string {
-  return value.slice(0, 5);
-}
+const formatTime = (value: string) => value.slice(0, 5);
 
-export function ExamSessionsTable({
-  examSessions,
-  onEdit,
-  onDelete,
-}: ExamSessionsTableProps) {
+export function ExamSessionsTable({ examSessions, onEdit, onDelete }: ExamSessionsTableProps) {
   const tl = useTranslations("screens.examSessions.examSessionsTable");
   const locale = useLocale();
+
+  const columns: DataTableColumn<ExamSessionDto>[] = [
+    { id: "title", header: tl("sessionTitle"), sortValue: (s) => s.title, cell: (s) => <span className="font-medium">{s.title}</span> },
+    { id: "date", header: tl("examDate"), className: "tabular-nums", sortValue: (s) => s.examDate, cell: (s) => formatExamDate(s.examDate, locale) },
+    { id: "start", header: tl("startTime"), hideOnMobile: true, className: "tabular-nums", sortValue: (s) => s.startTime, cell: (s) => <span dir="ltr">{formatTime(s.startTime)}</span> },
+    { id: "end", header: tl("endTime"), hideOnMobile: true, className: "tabular-nums", sortValue: (s) => s.endTime, cell: (s) => <span dir="ltr">{formatTime(s.endTime)}</span> },
+    { id: "status", header: tl("status"), cell: (s) => <StatusBadge active={s.isActive} /> },
+  ];
+
   return (
-    <div className="overflow-hidden rounded-lg border bg-card">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[750px] text-sm">
-          <thead className="border-b bg-muted/40">
-            <tr className="text-right text-muted-foreground">
-              <th className="px-4 py-3 font-medium">{tl("sessionTitle")}</th>
-              <th className="px-4 py-3 font-medium">{tl("examDate")}</th>
-              <th className="px-4 py-3 font-medium">{tl("startTime")}</th>
-              <th className="px-4 py-3 font-medium">{tl("endTime")}</th>
-              <th className="px-4 py-3 font-medium">{tl("status")}</th>
-              <th className="px-4 py-3 text-center font-medium">{tl("actions")}</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y">
-            {examSessions.map((item) => (
-              <tr
-                key={item.id}
-                className="transition-colors hover:bg-muted/30"
-              >
-                <td className="px-4 py-3 font-medium">
-                  {item.title}
-                </td>
-
-                <td className="px-4 py-3 tabular-nums">
-                  {formatExamDate(item.examDate, locale)}
-                </td>
-
-                <td className="px-4 py-3 tabular-nums" dir="ltr">
-                  {formatTime(item.startTime)}
-                </td>
-
-                <td className="px-4 py-3 tabular-nums" dir="ltr">
-                  {formatTime(item.endTime)}
-                </td>
-
-                <td className="px-4 py-3">
-                  {item.isActive ? (
-                    <span className="inline-flex rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-                      {tl("active")}
-                    </span>
-                  ) : (
-                    <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                      {tl("inactive")}
-                    </span>
-                  )}
-                </td>
-
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-center gap-1">
-                    <Can controller="ExamSessions" action="Update">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-8"
-                        title={tl("edit")}
-                        onClick={() => onEdit(item)}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                    </Can>
-
-                    <Can controller="ExamSessions" action="Delete">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-destructive hover:text-destructive"
-                        title={tl("delete")}
-                        onClick={() => onDelete(item)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </Can>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <DataTable
+      columns={columns}
+      rows={examSessions}
+      getRowId={(s) => s.id}
+      caption={tl("sessionTitle")}
+      empty={{ icon: <CalendarClock className="size-5" aria-hidden />, title: tl("sessionTitle"), description: "" }}
+      actions={(item) => (
+        <>
+          <Can controller="ExamSessions" action="Update">
+            <IconButton label={tl("edit")} icon={<Pencil className="size-4" aria-hidden />} onClick={() => onEdit(item)} />
+          </Can>
+          <Can controller="ExamSessions" action="Delete">
+            <IconButton label={tl("delete")} icon={<Trash2 className="size-4 text-destructive" aria-hidden />} onClick={() => onDelete(item)} />
+          </Can>
+        </>
+      )}
+    />
   );
 }

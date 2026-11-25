@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useApiError } from "@/hooks/use-api-error";
 import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
@@ -147,6 +148,7 @@ function MenuAccessNode({
   onExpand,
 }: MenuAccessNodeProps) {
   const tl = useTranslations("screens.groups.groupMenuAccessDialog");
+  const { errorText } = useApiError();
   const hasChildren = node.children.length > 0;
   const expanded = searching || expandedIds.has(node.id);
 
@@ -257,6 +259,7 @@ export function GroupMenuAccessDialog({
   group,
 }: GroupMenuAccessDialogProps) {
   const tl = useTranslations("screens.groups.groupMenuAccessDialog");
+  const { errorText } = useApiError();
   const [menus, setMenus] = useState<GroupMenuDto[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     new Set(),
@@ -385,9 +388,7 @@ export function GroupMenuAccessDialog({
       onOpenChange(false);
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : tl("couldnTSaveTheMenu"),
+        errorText(error, tl("couldnTSaveTheMenu")),
       );
     } finally {
       setSaving(false);

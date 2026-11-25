@@ -2,11 +2,13 @@ import { z } from "zod";
 
 import { apiRequest } from "@/lib/api/client";
 
+import { invalidateCodes } from "./code-store";
 import type { CodeDto, CreateCodeDto, UpdateCodeDto } from "./types";
 
 const codeSchema = z.object({
   id: z.number(),
   title: z.string(),
+  titleEn: z.string().nullish(),
 
   parentId: z.number().nullish(),
   standardCode: z.number().nullish(),
@@ -20,6 +22,7 @@ function toCodeRecord(code: z.infer<typeof codeSchema>): CodeDto {
   return {
     id: code.id,
     title: code.title,
+    titleEn: code.titleEn ?? null,
     parentId: code.parentId ?? null,
     standardCode: code.standardCode ?? null,
     primaryCode: code.primaryCode ?? null,
@@ -61,6 +64,7 @@ export async function createCode(input: CreateCodeDto): Promise<CodeDto> {
     schema: codeSchema,
   });
 
+  invalidateCodes();
   return toCodeRecord(code);
 }
 
@@ -74,6 +78,7 @@ export async function updateCode(id: number, input: UpdateCodeDto): Promise<Code
     schema: codeSchema,
   });
 
+  invalidateCodes();
   return toCodeRecord(code);
 }
 
@@ -85,4 +90,5 @@ export async function deleteCode(id: number): Promise<void> {
     method: "DELETE",
     schema: z.unknown(),
   });
+  invalidateCodes();
 }
