@@ -24,11 +24,11 @@ export const CODE_KEY_SEPARATOR = ":";
  * Values are unchanged from the previous inline numbers (gender=2, marital=1, religion=3, nationality=4, left-handed=5).
  */
 export const USER_CODE_GROUPS = {
-  maritalStatus: 1,
-  gender: 2,
-  religion: 3,
-  nationality: 4,
-  leftHanded: 5,
+  maritalStatus: 16,
+  gender: 18,
+  religion: 21,
+  nationality: 23,
+  leftHanded: 574,
 } as const;
 
 /**

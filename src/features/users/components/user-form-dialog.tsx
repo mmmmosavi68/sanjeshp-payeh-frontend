@@ -66,7 +66,7 @@ function dateValue(value?: string | null) {
 
 function normalizeLeftHanded(value: number | null | undefined) {
   if (value == null || value === 0) {
-    return "11";
+    return "12";
   }
 
   return String(value);
@@ -276,22 +276,22 @@ const {
       email: user?.email ?? "",
       nationalCode: user?.nationalCode ?? "",
 
-      gender:
-        user?.gender != null
-          ? String(user.gender)
-          : "10",
+      // gender:
+      //   user?.gender != null
+      //     ? String(user.gender)
+      //     : "10",
 
-      maritalStatus:
-        user?.maritalStatus != null
-          ? String(user.maritalStatus)
-          : "10",
+      // maritalStatus:
+      //   user?.maritalStatus != null
+      //     ? String(user.maritalStatus)
+      //     : "10",
 
-      religion:
-        user?.religion != null
-          ? String(user.religion)
-          : "",
+      // religion:
+      //   user?.religion != null
+      //     ? String(user.religion)
+      //     : "",
 
-      leftHanded: normalizeLeftHanded(user?.leftHanded),
+      // leftHanded: normalizeLeftHanded(user?.leftHanded),
 
       nationality:
         user?.nationality != null
@@ -310,14 +310,14 @@ useEffect(() => {
 
   setValue(
     "gender",
-    user?.gender != null ? String(user.gender) : "10",
+    user?.gender != null ? String(user.gender) : "",
   );
 
   setValue(
     "maritalStatus",
     user?.maritalStatus != null
       ? String(user.maritalStatus)
-      : "10",
+      : "",
   );
 
   setValue(
@@ -334,7 +334,7 @@ useEffect(() => {
     "nationality",
     user?.nationality != null
       ? String(user.nationality)
-      : "",
+      : "37",
   );
 }, [codeOptions, user, setValue]);
   async function onSubmit(values: UserFormValues) {
